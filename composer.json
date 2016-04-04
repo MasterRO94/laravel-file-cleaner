@@ -1,5 +1,5 @@
 {
-    "name": "masterro/laravel-files-cleaner",
+    "name": "masterro/laravel-file-cleaner",
     "description": "Laravel console command for deleting temp files and associated model instances.",
     "license": "MIT",
     "keywords": ["laravel", "files", "delete", "clean"],
