@@ -1,0 +1,24 @@
+{
+    "name": "masterro/laravel-files-cleaner",
+    "description": "Laravel console command for deleting temp files and associated model instances.",
+    "license": "MIT",
+    "keywords": ["laravel", "files", "delete", "clean"],
+    "authors": [
+        {
+            "name": "Igoshin Roman",
+            "email": "igoshin18@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "illuminate/support": "^5.2",
+        "nesbot/carbon": "^1.21",
+        "illuminate/filesystem": "^5.2",
+        "illuminate/console": "^5.2"
+    },
+	"autoload": {
+		"psr-4": {
+			"MasterRO\\LaravelFilesCleaner": "src/"
+		}
+	}
+}
