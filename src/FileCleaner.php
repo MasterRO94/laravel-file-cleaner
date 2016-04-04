@@ -1,6 +1,6 @@
 <?php
 
-namespace MasterRO\LaravelFilesCleaner;
+namespace MasterRO\LaravelFileCleaner;
 
 use Carbon\Carbon;
 use Illuminate\Console\Command;
