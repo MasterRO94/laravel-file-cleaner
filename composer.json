@@ -20,5 +20,11 @@
 		"psr-4": {
 			"MasterRO\\LaravelFileCleaner\\": "src/"
 		}
-	}
+	},
+    "autoload-dev": {
+      "classmap": ["tests/TestCase.php"]
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.3"
+    }
 }
