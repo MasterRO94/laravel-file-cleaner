@@ -9,7 +9,7 @@ LaravelFileCleaner is a package for Laravel that provides deleting temp files an
 From the command line, run:
 
 ```
-masterro/laravel-file-cleaner
+composer require masterro/laravel-file-cleaner
 ```
 
 ### Step 2: Service Provider
