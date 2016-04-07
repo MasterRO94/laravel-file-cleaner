@@ -1,6 +1,6 @@
 # LaravelFileCleaner
 
-LaravelFileCleaner is a package for Laravel that provides deleting temp files and associated model instances(if needed).
+LaravelFileCleaner is a package for Laravel 5 that provides deleting temp files and associated model instances(if needed).
 
 ## Installation
 
@@ -49,6 +49,7 @@ protected $commands = [
 ```
 
 Then add new command call to schedule function:
+> Have a look at [Laravel's task scheduling documentation](https://laravel.com/docs/5.2/scheduling), if you need any help.
 
 ```php
 protected function schedule(Schedule $schedule)
@@ -68,7 +69,7 @@ php artisan file-cleaner:clean
 And see the output.
 
 
-Or if you want to delete files without checking time:
+Or if you want to delete files without checking time (just delete all files from all set directories):
 ```
 php artisan file-cleaner:clean -f
 ```
