@@ -9,7 +9,7 @@
             "email": "igoshin18@gmail.com"
         }
     ],
-    "minimum-stability": "dev",
+    "version": "1.0.0",
     "require": {
         "illuminate/support": "^5.2",
         "nesbot/carbon": "^1.21",
