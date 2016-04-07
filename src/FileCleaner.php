@@ -20,7 +20,7 @@ class FileCleaner extends Command
      *
      * @var string
      */
-    protected $description = 'Remove all temp or other files from disk';
+    protected $description = 'Remove all temp or other files from disk and associated models';
 
 
     /**
@@ -99,7 +99,10 @@ class FileCleaner extends Command
     {
         $this->timeBeforeRemove = $this->option('force') ? -1 : config('file-cleaner.time_before_remove', 60);
         
-        if( ! count($this->paths)) $this->info('Nothing to delete.');
+        if( ! count($this->paths)) {
+            $this->info('Nothing to delete.');
+            return;
+        }
 
         foreach ($this->paths as $path) {
             $this->clear($path);
