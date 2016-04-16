@@ -1,46 +1,46 @@
 # LaravelFileCleaner
 
-LaravelFileCleaner is a package for Laravel 5 that provides deleting temp files and associated model instances(if needed).
+LaravelFileCleaner - это пакет для Laravel 5.1-5.2, который позвлоляет удалять временные файлы и связанные с ними сущности модели (при необходимости).
 
-## Installation
+## Установка
 
-### Step 1: Composer
+### ШАГ 1: Composer
 
-From the command line, run:
+В коммандной строке:
 
 ```
 composer require masterro/laravel-file-cleaner
 ```
 
-### Step 2: Service Provider
+### ШАГ 2: Service Provider
 
-For your Laravel app, open `config/app.php` and, within the `providers` array, append:
+Откройте файл `config/app.php` и добавьте в массив `providers` :
 
 ```
 MasterRO\LaravelFileCleaner\FileCleanerServiceProvider::class
 ```
 
-This will bootstrap the package into Laravel.
+Таким образом мы подключим пакет в автозагрузку Laravel.
 
-### Step 3: Publish Configs
+### ШАГ 3: Конфигурация
 
-First from the command line, run:
+Для начала в коммандной строке пишем:
 
 ```
 php artisan vendor:publish --provider="MasterRO\LaravelFileCleaner\FileCleanerServiceProvider"
 ```
 
-After that you will see `file-cleaner.php` file in config directory
+После чего в директории `config` появится файл `file-cleaner.php`
 
-For this package you may set such configurations:
-* Paths where temp files are storing (or will be storing), relative to root directory
-* Time after which the files will be deleted | _default **60** minutes_
-* Model which instances will be deleted with associated files | _optional_
-* Field name that contains the name of the removing file | _optional, **only if model set**_
+Для текущей версии пакета доступны слледующие настройки:
+* Массив путей к папкам, где храняться (или будут хранится) файлы для удаления | пути относительно корневого каталога.
+* Время, после которого файлы будут удалены | _по умолчанию **60** минут_
+* Модель, сущности которой будут удалены вместе с привязанными файлами | _не обязательно_
+* Имя поля в таблице модели, которое хранит имя привязанного файла | _не обязательно, **работает только если указана модель**_
 
-## Usage
+## Использование
 
-In your Command kernel file add `FileCleaner::class`:
+В Command/Kernel.php добавьте `FileCleaner::class`:
 
 ```php
 protected $commands = [
@@ -48,8 +48,8 @@ protected $commands = [
 ];
 ```
 
-Then add new command call to schedule function:
-> Have a look at [Laravel's task scheduling documentation](https://laravel.com/docs/5.2/scheduling), if you need any help.
+Затем добавьте вызов команды в фукцию `schedule`:
+> [Документация по Task Scheduling](https://laravel.com/docs/5.2/scheduling), если есть вопросы.
 
 ```php
 protected function schedule(Schedule $schedule)
@@ -58,18 +58,18 @@ protected function schedule(Schedule $schedule)
 }
 ```
 
-And that's all. If your cron set up everything will work.
+И это все что нужно для работы пакета. Если вы настроили крон правильновсе будет работать.
 
 
 
-You can run deleting manually, just run from the command line:
+Вы можете запустить удаление вручную прописав в консоли:
 ```
 php artisan file-cleaner:clean
 ```
-And see the output.
+Удаляться только те файлы, которые храняться больше указанного в настройках времени.
 
 
-Or if you want to delete files without checking time (just delete all files from all set directories):
+Или если нужно удалить все файлы без проверки на время (просто удалить все файлы из указанных директорий):
 ```
 php artisan file-cleaner:clean -f
 ```
