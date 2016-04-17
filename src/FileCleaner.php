@@ -13,7 +13,10 @@ class FileCleaner extends Command
      *
      * @var string
      */
-    protected $signature = 'file-cleaner:clean {--f|force} {--directory=}';
+    protected $signature = 'file-cleaner:clean 
+                                                {--f|force} 
+                                                {--directory=}
+                                                {--remove-directories=}';
 
     /**
      * The console command description.
@@ -36,7 +39,12 @@ class FileCleaner extends Command
     /**
      * @var string|null
      */
-    protected $file_field = null;
+    protected $fileField = null;
+
+    /**
+     * @var bool
+     */
+    protected $removeDirectories = true;
 
     /**
      * Filesystem $filesystem
@@ -85,7 +93,7 @@ class FileCleaner extends Command
         if (! is_null(config('file-cleaner.model'))) {
             $model = config('file-cleaner.model');
             $this->model = new $model;
-            $this->file_field = config('file-cleaner.file_field_name');
+            $this->fileField = config('file-cleaner.file_field_name');
         }
 
     }
@@ -102,6 +110,8 @@ class FileCleaner extends Command
         if ($directory = $this->option('directory')) {
             $this->getPathsFromConsole($directory);
         }
+
+        $this->removeDirectories = $this->option('remove-directories') ?: config('file-cleaner.remove_directories', true);
 
 
         if (! count($this->paths)) {
@@ -126,9 +136,11 @@ class FileCleaner extends Command
             $this->filesystem->allFiles($path)
         );
 
-        $this->removeDirectories(
-            $this->filesystem->directories($path)
-        );
+        if($this->removeDirectories) {
+            $this->removeDirectories(
+                $this->filesystem->directories($path)
+            );
+        }
     }
 
 
@@ -190,9 +202,9 @@ class FileCleaner extends Command
      */
     protected function deleteDocument($name)
     {
-        if (is_null($this->model) || is_null($this->file_field)) return false;
+        if (is_null($this->model) || is_null($this->fileField)) return false;
 
-        if ($instances = $this->model->where($this->file_field, $name)->get()) {
+        if ($instances = $this->model->where($this->fileField, $name)->get()) {
             foreach ($instances as $instance) {
                 $instance->delete();
                 $this->countRemovedInstances++;

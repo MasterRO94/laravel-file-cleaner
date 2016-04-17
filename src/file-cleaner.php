@@ -15,6 +15,8 @@ return [
     |
     | file_field_name - name of the table field where filename is stored. Work only if model set
     |
+    | remove_directory - remove directory if all files had been deleted. Only nested directories would be removed
+    |
     */
 
     /**
@@ -29,6 +31,12 @@ return [
      * integer
      */
     'time_before_remove' => 60,
+
+
+    /**
+     * bool
+     */
+    'remove_directory' => true,
 
 
     /**
