@@ -84,13 +84,9 @@ class FileCleaner extends Command
         $this->filesystem = $filesystem;
 
         $this->paths = config('file-cleaner.paths', []);
-        if ($count = count($this->paths)) {
-            for ($i = 0; $i < $count; $i++) {
-                $this->paths[$i] = realpath(base_path($this->paths[$i]));
-            }
-        }
+        $this->setRealPaths();
 
-        if (! is_null(config('file-cleaner.model'))) {
+        if (!is_null(config('file-cleaner.model'))) {
             $model = config('file-cleaner.model');
             $this->model = new $model;
             $this->fileField = config('file-cleaner.file_field_name');
@@ -111,10 +107,11 @@ class FileCleaner extends Command
             $this->getPathsFromConsole($directory);
         }
 
-        $this->removeDirectories = $this->option('remove-directories') ?: config('file-cleaner.remove_directories', true);
+        $this->removeDirectories = ($removeDirectories = $this->option('remove-directories'))
+            ? ($removeDirectories == "false" ? false : true)
+            : config('file-cleaner.remove_directories', true);
 
-
-        if (! count($this->paths)) {
+        if (!count($this->paths)) {
             $this->info('Nothing to delete.');
             return;
         }
@@ -132,14 +129,19 @@ class FileCleaner extends Command
      */
     protected function clear($path)
     {
-        $this->removeFiles(
-            $this->filesystem->allFiles($path)
-        );
+        if ($this->filesystem->exists($path)) {
 
-        if($this->removeDirectories) {
-            $this->removeDirectories(
-                $this->filesystem->directories($path)
+            $this->removeFiles(
+                $this->filesystem->allFiles($path)
             );
+
+            if ($this->removeDirectories === true) {
+                $this->removeDirectories(
+                    $this->filesystem->directories($path)
+                );
+            }
+        } else {
+            $this->warn('Directory ' . $path . ' does not exists');
         }
     }
 
@@ -166,7 +168,7 @@ class FileCleaner extends Command
     protected function removeDirectories(array $directories)
     {
         foreach ($directories as $dir) {
-            if (! count($this->filesystem->allFiles($dir))) {
+            if (!count($this->filesystem->allFiles($dir))) {
                 $this->filesystem->deleteDirectory($dir);
                 $this->info('Deleted directory: ' . $dir);
                 $this->countRemovedDirectories++;
@@ -180,7 +182,7 @@ class FileCleaner extends Command
      */
     protected function outputResultCounts()
     {
-        if (! $this->countRemovedFiles && ! $this->countRemovedDirectories) {
+        if (!$this->countRemovedFiles && !$this->countRemovedDirectories) {
             $this->info('Nothing to delete. All files are fresh.');
         } else {
             if ($this->countRemovedFiles) {
@@ -221,8 +223,22 @@ class FileCleaner extends Command
     protected function getPathsFromConsole($directory)
     {
         $directories = explode(',', $directory);
-        array_map('trim', $directories);
 
-        return $this->paths = $directories;
+        $this->paths = $directories;
+
+        $this->setRealPaths();
+    }
+
+
+    /**
+     * Set real directories paths
+     */
+    protected function setRealPaths()
+    {
+        if ($count = count($this->paths)) {
+            for ($i = 0; $i < $count; $i++) {
+                $this->paths[$i] = realpath(base_path($this->paths[$i])) ?: $this->paths[$i];
+            }
+        }
     }
 }

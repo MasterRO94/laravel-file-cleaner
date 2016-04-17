@@ -36,7 +36,7 @@ return [
     /**
      * bool
      */
-    'remove_directory' => true,
+    'remove_directories' => true,
 
 
     /**
