@@ -13,7 +13,7 @@ class FileCleaner extends Command
      *
      * @var string
      */
-    protected $signature = 'file-cleaner:clean {--f|force}';
+    protected $signature = 'file-cleaner:clean {--f|force} {--directory=}';
 
     /**
      * The console command description.
@@ -82,7 +82,7 @@ class FileCleaner extends Command
             }
         }
 
-        if (!is_null(config('file-cleaner.model'))) {
+        if (! is_null(config('file-cleaner.model'))) {
             $model = config('file-cleaner.model');
             $this->model = new $model;
             $this->file_field = config('file-cleaner.file_field_name');
@@ -98,6 +98,11 @@ class FileCleaner extends Command
     public function handle()
     {
         $this->timeBeforeRemove = $this->option('force') ? -1 : config('file-cleaner.time_before_remove', 60);
+
+        if ($directory = $this->option('directory')) {
+            $this->getPathsFromConsole($directory);
+        }
+
 
         if (! count($this->paths)) {
             $this->info('Nothing to delete.');
@@ -161,7 +166,7 @@ class FileCleaner extends Command
     /**
      * Display how much files and directories totally were removed
      */
-    private function outputResultCounts()
+    protected function outputResultCounts()
     {
         if (! $this->countRemovedFiles && ! $this->countRemovedDirectories) {
             $this->info('Nothing to delete. All files are fresh.');
@@ -183,7 +188,7 @@ class FileCleaner extends Command
      * @param $name
      * @return bool
      */
-    private function deleteDocument($name)
+    protected function deleteDocument($name)
     {
         if (is_null($this->model) || is_null($this->file_field)) return false;
 
@@ -193,5 +198,19 @@ class FileCleaner extends Command
                 $this->countRemovedInstances++;
             }
         }
+
+        return true;
+    }
+
+
+    /**
+     * @param $directory
+     */
+    protected function getPathsFromConsole($directory)
+    {
+        $directories = explode(',', $directory);
+        array_map('trim', $directories);
+
+        return $this->paths = $directories;
     }
 }
