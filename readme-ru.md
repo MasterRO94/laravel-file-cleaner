@@ -40,6 +40,8 @@ php artisan vendor:publish --provider="MasterRO\LaravelFileCleaner\FileCleanerSe
 
 ## Использование
 
+### Scheduling
+
 В Command/Kernel.php добавьте `FileCleaner::class`:
 
 ```php
@@ -61,6 +63,7 @@ protected function schedule(Schedule $schedule)
 И это все что нужно для работы пакета. Если вы настроили крон правильновсе будет работать.
 
 
+### Вручную, используя Artisan Console
 
 Вы можете запустить удаление вручную прописав в консоли:
 ```
@@ -73,6 +76,17 @@ php artisan file-cleaner:clean
 ```
 php artisan file-cleaner:clean -f
 ```
+
+Вы даже можете переопределить значения конфига `paths` используя `--directories` option (разделяя запятой):
+```
+php artisan file-cleaner:clean -f --directories=storage/temp/images,public/uploads/test
+```
+
+Также можно переопределить значени конфига `remove_directories` используя `--remove-directories` option:
+```
+php artisan file-cleaner:clean -f --directories=storage/temp/images,public/uploads/test --remove-directories=false
+```
+
 
 
 

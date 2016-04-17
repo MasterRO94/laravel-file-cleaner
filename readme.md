@@ -37,9 +37,11 @@ For this package you may set such configurations:
 * Time after which the files will be deleted | _default **60** minutes_
 * Model which instances will be deleted with associated files | _optional_
 * Field name that contains the name of the removing file | _optional, **only if model set**_
+* Remove directories flag, if set to true all nested directories would be removed | _default **true**_
 
 ## Usage
 
+### Scheduling
 In your Command kernel file add `FileCleaner::class`:
 
 ```php
@@ -61,6 +63,7 @@ protected function schedule(Schedule $schedule)
 And that's all. If your cron set up everything will work.
 
 
+### Manual, using artisan console
 
 You can run deleting manually, just run from the command line:
 ```
@@ -69,9 +72,19 @@ php artisan file-cleaner:clean
 And see the output.
 
 
-Or if you want to delete files without checking time (just delete all files from all set directories):
+Or if you want to delete files without checking time (just delete all files from all set directories) use the --force flag (or -f shortcut):
 ```
 php artisan file-cleaner:clean -f
+```
+
+You can even override config directories `paths` value with `--directories` option (separate by comma):
+```
+php artisan file-cleaner:clean -f --directories=storage/temp/images,public/uploads/test
+```
+
+Also you can even override `remove_directories` config value with `--remove-directories` option:
+```
+php artisan file-cleaner:clean -f --directories=storage/temp/images,public/uploads/test --remove-directories=false
 ```
 
 
