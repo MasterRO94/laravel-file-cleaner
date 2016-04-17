@@ -15,7 +15,7 @@ class FileCleanerServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__.'/file-cleaner.php' => config_path('file-cleaner.php'),
+            __DIR__ . '/file-cleaner.php' => config_path('file-cleaner.php'),
         ]);
     }
 

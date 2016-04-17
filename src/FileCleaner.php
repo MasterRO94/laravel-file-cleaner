@@ -63,7 +63,7 @@ class FileCleaner extends Command
      * @int $countRemovedInstances
      */
     protected $countRemovedInstances = 0;
-    
+
     /**
      * Create a new command instance.
      *
@@ -76,13 +76,13 @@ class FileCleaner extends Command
         $this->filesystem = $filesystem;
 
         $this->paths = config('file-cleaner.paths', []);
-        if($count = count($this->paths)){
-            for ($i=0; $i<$count; $i++) {
+        if ($count = count($this->paths)) {
+            for ($i = 0; $i < $count; $i++) {
                 $this->paths[$i] = realpath(base_path($this->paths[$i]));
             }
         }
 
-        if( ! is_null(config('file-cleaner.model'))){
+        if (!is_null(config('file-cleaner.model'))) {
             $model = config('file-cleaner.model');
             $this->model = new $model;
             $this->file_field = config('file-cleaner.file_field_name');
@@ -98,8 +98,8 @@ class FileCleaner extends Command
     public function handle()
     {
         $this->timeBeforeRemove = $this->option('force') ? -1 : config('file-cleaner.time_before_remove', 60);
-        
-        if( ! count($this->paths)) {
+
+        if (! count($this->paths)) {
             $this->info('Nothing to delete.');
             return;
         }
@@ -133,7 +133,7 @@ class FileCleaner extends Command
     protected function removeFiles(array $files)
     {
         foreach ($files as $file) {
-            if(Carbon::createFromTimestamp($file->getMTime())->diffInMinutes(Carbon::now()) > $this->timeBeforeRemove){
+            if (Carbon::createFromTimestamp($file->getMTime())->diffInMinutes(Carbon::now()) > $this->timeBeforeRemove) {
                 $this->filesystem->delete($filename = $file->getRealPath());
                 $this->deleteDocument($file->getBasename());
                 $this->info('Deleted file: ' . $filename);
@@ -149,7 +149,7 @@ class FileCleaner extends Command
     protected function removeDirectories(array $directories)
     {
         foreach ($directories as $dir) {
-            if( ! count($this->filesystem->allFiles($dir))){
+            if (! count($this->filesystem->allFiles($dir))) {
                 $this->filesystem->deleteDirectory($dir);
                 $this->info('Deleted directory: ' . $dir);
                 $this->countRemovedDirectories++;
@@ -163,16 +163,16 @@ class FileCleaner extends Command
      */
     private function outputResultCounts()
     {
-        if( ! $this->countRemovedFiles && ! $this->countRemovedDirectories) {
+        if (! $this->countRemovedFiles && ! $this->countRemovedDirectories) {
             $this->info('Nothing to delete. All files are fresh.');
-        }else{
-            if($this->countRemovedFiles) {
+        } else {
+            if ($this->countRemovedFiles) {
                 $this->info('Deleted ' . $this->countRemovedFiles . ' file(s)');
             }
-            if($this->countRemovedDirectories){
+            if ($this->countRemovedDirectories) {
                 $this->info('Deleted ' . $this->countRemovedDirectories . ' directory(ies).');
             }
-            if($this->countRemovedInstances){
+            if ($this->countRemovedInstances) {
                 $this->info('Deleted ' . $this->countRemovedInstances . ' instance(s).');
             }
         }
@@ -185,9 +185,9 @@ class FileCleaner extends Command
      */
     private function deleteDocument($name)
     {
-        if(is_null($this->model) || is_null($this->file_field)) return false;
+        if (is_null($this->model) || is_null($this->file_field)) return false;
 
-        if($instances = $this->model->where($this->file_field, $name)->get()){
+        if ($instances = $this->model->where($this->file_field, $name)->get()) {
             foreach ($instances as $instance) {
                 $instance->delete();
                 $this->countRemovedInstances++;
