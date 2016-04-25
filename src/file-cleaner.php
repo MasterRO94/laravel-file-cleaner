@@ -7,7 +7,11 @@ return [
     | File clear settings
     |--------------------------------------------------------------------------
     |
-    | paths - defines relative root paths array, where directories and files store
+    | paths - defines relative root paths array where directories and files store
+    | 
+    | excluded_paths - defines relative root paths array where directories and files would not be deleted
+    | 
+    | excluded_files - defines relative root paths array with filenames those would not be deleted
     | 
     | time_before_remove - defines how many minutes files may be store
     |

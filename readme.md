@@ -34,6 +34,8 @@ After that you will see `file-cleaner.php` file in config directory
 
 For this package you may set such configurations:
 * Paths where temp files are storing (or will be storing), relative to root directory
+* Excluded directory paths where nothing would be deleted, relative to root directory
+* Excluded files path that would not be deleted, relative to root directory
 * Time after which the files will be deleted | _default **60** minutes_
 * Model which instances will be deleted with associated files | _optional_
 * Field name that contains the name of the removing file | _optional, **only if model set**_
@@ -77,10 +79,17 @@ Or if you want to delete files without checking time (just delete all files from
 php artisan file-cleaner:clean -f
 ```
 
-You can even override config directories `paths` value with `--directories` option (separate by comma):
+You can even override config directories `paths`, `excluded_paths` and `excluded_files` values with `--directories`, `--excluded-paths` and `--excluded-files` options (separate by comma):
 ```
 php artisan file-cleaner:clean -f --directories=storage/temp/images,public/uploads/test
 ```
+```
+php artisan file-cleaner:clean -f --excluded-paths=public/uploads/images/default,public/uploads/test
+```
+```
+php artisan file-cleaner:clean -f --excluded-files=public/uploads/images/default.png,public/uploads/test/01.png
+```
+
 
 Also you can even override `remove_directories` config value with `--remove-directories` option:
 ```

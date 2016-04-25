@@ -34,9 +34,12 @@ php artisan vendor:publish --provider="MasterRO\LaravelFileCleaner\FileCleanerSe
 
 Для текущей версии пакета доступны слледующие настройки:
 * Массив путей к папкам, где храняться (или будут хранится) файлы для удаления | пути относительно корневого каталога.
+* Массив путей к папкам, файлы и одпапки которых не будут удалены | пути относительно корневого каталога.
+* Массив путей к файлам, которые не будут удалены | пути относительно корневого каталога.
 * Время, после которого файлы будут удалены | _по умолчанию **60** минут_
 * Модель, сущности которой будут удалены вместе с привязанными файлами | _не обязательно_
 * Имя поля в таблице модели, которое хранит имя привязанного файла | _не обязательно, **работает только если указана модель**_
+* Флаг указывающий на то удалять или не удалять пустые папки после удаления файлов | _по умолчанию **true**_
 
 ## Использование
 
@@ -77,9 +80,15 @@ php artisan file-cleaner:clean
 php artisan file-cleaner:clean -f
 ```
 
-Вы даже можете переопределить значения конфига `paths` используя `--directories` option (разделяя запятой):
+Вы даже можете переопределить значения конфига `paths`, `excluded_paths` и `excluded_files` используя `--directories`, `--excluded-paths` and `--excluded-files` options (разделяя запятой):
 ```
 php artisan file-cleaner:clean -f --directories=storage/temp/images,public/uploads/test
+```
+```
+php artisan file-cleaner:clean -f --excluded-paths=public/uploads/images/default,public/uploads/test
+```
+```
+php artisan file-cleaner:clean -f --excluded-files=public/uploads/images/default.png,public/uploads/test/01.png
 ```
 
 Также можно переопределить значени конфига `remove_directories` используя `--remove-directories` option:
