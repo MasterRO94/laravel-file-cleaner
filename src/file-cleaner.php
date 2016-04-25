@@ -26,6 +26,20 @@ return [
         'storage/app/temp/images',
     ],
 
+    /**
+     * array
+     */
+    'excluded_paths' => [
+        'public/uploads/images/default',
+    ],
+
+    /**
+     * array
+     */
+    'excluded_files' => [
+        'public/uploads/images/default.png',
+    ],
+
 
     /**
      * integer

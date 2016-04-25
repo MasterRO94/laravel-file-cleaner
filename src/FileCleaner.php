@@ -15,7 +15,9 @@ class FileCleaner extends Command
      */
     protected $signature = 'file-cleaner:clean 
                                                 {--f|force} 
-                                                {--directory=}
+                                                {--directories=}
+                                                {--excluded-paths=}
+                                                {--excluded-files=}
                                                 {--remove-directories=}';
 
     /**
@@ -30,6 +32,16 @@ class FileCleaner extends Command
      * @var array
      */
     protected $paths = [];
+
+    /**
+     * @var array
+     */
+    protected $excludedPaths = [];
+    
+    /**
+     * @var array
+     */
+    protected $excludedFiles = [];
 
     /**
      * @var string|null
@@ -84,6 +96,8 @@ class FileCleaner extends Command
         $this->filesystem = $filesystem;
 
         $this->paths = config('file-cleaner.paths', []);
+        $this->excludedPaths = config('file-cleaner.excluded_paths', []);
+        $this->excludedFiles = config('file-cleaner.excluded_files', []);
         $this->setRealPaths();
 
         if (!is_null(config('file-cleaner.model'))) {
@@ -103,8 +117,16 @@ class FileCleaner extends Command
     {
         $this->timeBeforeRemove = $this->option('force') ? -1 : config('file-cleaner.time_before_remove', 60);
 
-        if ($directory = $this->option('directory')) {
-            $this->getPathsFromConsole($directory);
+        if ($directories = $this->option('directories')) {
+            $this->getPathsFromConsole($directories);
+        }
+
+        if ($excludedDirectory = $this->option('excluded-paths')) {
+            $this->getExcludedPathsFromConsole($excludedDirectory);
+        }
+
+        if ($excludedFiles = $this->option('excluded-files')) {
+            $this->getExcludedFilesFromConsole($excludedFiles);
         }
 
         $this->removeDirectories = ($removeDirectories = $this->option('remove-directories'))
@@ -153,10 +175,15 @@ class FileCleaner extends Command
     {
         foreach ($files as $file) {
             if (Carbon::createFromTimestamp($file->getMTime())->diffInMinutes(Carbon::now()) > $this->timeBeforeRemove) {
-                $this->filesystem->delete($filename = $file->getRealPath());
-                $this->deleteDocument($file->getBasename());
-                $this->info('Deleted file: ' . $filename);
-                $this->countRemovedFiles++;
+
+                if (! in_array($file->getPath(), $this->excludedPaths)
+                    && ! in_array($filename = $file->getRealPath(), $this->excludedFiles)) {
+
+                    $this->filesystem->delete($filename);
+                    $this->deleteDocument($file->getBasename());
+                    $this->info('Deleted file: ' . $filename);
+                    $this->countRemovedFiles++;
+                }
             }
         }
     }
@@ -218,15 +245,41 @@ class FileCleaner extends Command
 
 
     /**
-     * @param $directory
+     * @param $directories
      */
-    protected function getPathsFromConsole($directory)
+    protected function getPathsFromConsole($directories)
     {
-        $directories = explode(',', $directory);
+        $directories = explode(',', $directories);
 
         $this->paths = $directories;
 
-        $this->setRealPaths();
+        $this->setRealDirectoryPaths();
+    }
+
+
+    /**
+     * @param $paths
+     */
+    protected function getExcludedPathsFromConsole($paths)
+    {
+        $paths = explode(',', $paths);
+
+        $this->excludedPaths = $paths;
+
+        $this->setRealExcludedDirectoryPaths();
+    }
+
+
+    /**
+     * @param $paths
+     */
+    protected function getExcludedFilesFromConsole($paths)
+    {
+        $paths = explode(',', $paths);
+
+        $this->excludedFiles = $paths;
+
+        $this->setRealExcludedFilesPaths();
     }
 
 
@@ -235,9 +288,37 @@ class FileCleaner extends Command
      */
     protected function setRealPaths()
     {
+        $this->setRealDirectoryPaths();
+        $this->setRealExcludedDirectoryPaths();
+        $this->setRealExcludedFilesPaths();
+    }
+
+
+    private function setRealDirectoryPaths()
+    {
         if ($count = count($this->paths)) {
             for ($i = 0; $i < $count; $i++) {
                 $this->paths[$i] = realpath(base_path($this->paths[$i])) ?: $this->paths[$i];
+            }
+        }
+    }
+
+
+    private function setRealExcludedDirectoryPaths()
+    {
+        if ($count = count($this->excludedPaths)) {
+            for ($i = 0; $i < $count; $i++) {
+                $this->excludedPaths[$i] = realpath(base_path($this->excludedPaths[$i])) ?: $this->excludedPaths[$i];
+            }
+        }
+    }
+
+
+    private function setRealExcludedFilesPaths()
+    {
+        if ($count = count($this->excludedFiles)) {
+            for ($i = 0; $i < $count; $i++) {
+                $this->excludedFiles[$i] = realpath(base_path($this->excludedFiles[$i])) ?: $this->excludedFiles[$i];
             }
         }
     }
