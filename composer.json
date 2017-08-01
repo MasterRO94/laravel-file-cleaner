@@ -5,19 +5,27 @@
     "keywords": ["laravel", "files", "delete", "clean"],
     "authors": [
         {
-            "name": "Igoshin Roman",
+            "name": "Ihoshyn Roman",
             "email": "igoshin18@gmail.com"
         }
     ],
     "require": {
-        "illuminate/support": "^5.1",
-        "nesbot/carbon": "^1.21",
-        "illuminate/filesystem": "^5.1",
-        "illuminate/console": "^5.1"
+        "php": ">=5.4.0",
+        "illuminate/support": "^5.1,<5.6",
+        "illuminate/filesystem": "^5.1,<5.6",
+        "illuminate/console": "^5.1,<5.6",
+        "nesbot/carbon": "^1.21"
     },
 	"autoload": {
 		"psr-4": {
 			"MasterRO\\LaravelFileCleaner\\": "src/"
 		}
-	}
+	},
+    "extra": {
+      "laravel": {
+        "providers": [
+          "MasterRO\\LaravelFileCleaner\\FileCleanerServiceProvider"
+        ]
+      }
+    }
 }

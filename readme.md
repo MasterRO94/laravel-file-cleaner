@@ -1,3 +1,9 @@
+<p align="center">
+<a href="https://packagist.org/packages/masterro/laravel-file-cleaner"><img src="https://poser.pugx.org/masterro/laravel-file-cleaner/d/total.svg" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/masterro/laravel-file-cleaner"><img src="https://poser.pugx.org/masterro/laravel-file-cleaner/v/stable.svg" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/masterro/laravel-file-cleaner"><img src="https://poser.pugx.org/masterro/laravel-file-cleaner/license.svg" alt="License"></a>
+</p>
+
 # LaravelFileCleaner
 
 LaravelFileCleaner is a package for Laravel 5 that provides deleting temp files and associated model instances(if needed).

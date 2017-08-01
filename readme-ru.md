@@ -1,3 +1,9 @@
+<p align="center">
+<a href="https://packagist.org/packages/masterro/laravel-file-cleaner"><img src="https://poser.pugx.org/masterro/laravel-file-cleaner/d/total.svg" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/masterro/laravel-file-cleaner"><img src="https://poser.pugx.org/masterro/laravel-file-cleaner/v/stable.svg" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/masterro/laravel-file-cleaner"><img src="https://poser.pugx.org/masterro/laravel-file-cleaner/license.svg" alt="License"></a>
+</p>
+
 # LaravelFileCleaner
 
 LaravelFileCleaner - это пакет для Laravel 5.1-5.2, который позвлоляет удалять временные файлы и связанные с ними сущности модели (при необходимости).
