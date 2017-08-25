@@ -18,7 +18,7 @@ LaravelFileCleaner - это пакет для Laravel 5, который позв
 composer require masterro/laravel-file-cleaner
 ```
 
-### ШАГ 2: Service Provider
+### ШАГ 2: Service Provider (Для версии Laravel < 5.5)
 
 Откройте файл `config/app.php` и добавьте в массив `providers` :
 

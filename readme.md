@@ -34,7 +34,7 @@ From the command line, run:
 composer require masterro/laravel-file-cleaner
 ```
 
-### Step 2: Service Provider
+### Step 2: Service Provider (For Laravel < 5.5)
 
 For your Laravel app, open `config/app.php` and, within the `providers` array, append:
 
