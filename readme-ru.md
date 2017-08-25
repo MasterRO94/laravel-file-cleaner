@@ -6,7 +6,7 @@
 
 # LaravelFileCleaner
 
-LaravelFileCleaner - это пакет для Laravel 5.1-5.2, который позвлоляет удалять временные файлы и связанные с ними сущности модели (при необходимости).
+LaravelFileCleaner - это пакет для Laravel 5, который позвлоляет удалять временные файлы и связанные с ними сущности модели (при необходимости).
 
 ## Установка
 
@@ -51,15 +51,7 @@ php artisan vendor:publish --provider="MasterRO\LaravelFileCleaner\FileCleanerSe
 
 ### Scheduling
 
-В Command/Kernel.php добавьте `FileCleaner::class`:
-
-```php
-protected $commands = [
-    \MasterRO\LaravelFileCleaner\FileCleaner::class,
-];
-```
-
-Затем добавьте вызов команды в фукцию `schedule`:
+Добавьте вызов команды в фукцию `schedule`:
 > [Документация по Task Scheduling](https://laravel.com/docs/5.2/scheduling), если есть вопросы.
 
 ```php

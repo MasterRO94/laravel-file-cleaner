@@ -66,15 +66,8 @@ For this package you may set such configurations:
 ## Usage
 
 ### Scheduling
-In your Command kernel file add `FileCleaner::class`:
 
-```php
-protected $commands = [
-    \MasterRO\LaravelFileCleaner\FileCleaner::class,
-];
-```
-
-Then add new command call to schedule function:
+Add new command call to schedule function:
 > Have a look at [Laravel's task scheduling documentation](https://laravel.com/docs/5.2/scheduling), if you need any help.
 
 ```php
