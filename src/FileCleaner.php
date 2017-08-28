@@ -2,324 +2,357 @@
 
 namespace MasterRO\LaravelFileCleaner;
 
+use App\Models\Model;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Collection;
 
 class FileCleaner extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'file-cleaner:clean 
+	/**
+	 * The name and signature of the console command.
+	 *
+	 * @var string
+	 */
+	protected $signature = 'file-cleaner:clean 
                                                 {--f|force} 
                                                 {--directories=}
                                                 {--excluded-paths=}
                                                 {--excluded-files=}
                                                 {--remove-directories=}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Remove all temp or other files from disk and associated models';
+	/**
+	 * The console command description.
+	 *
+	 * @var string
+	 */
+	protected $description = 'Remove all temp or other files from disk and associated models';
+
+	/**
+	 * @var array
+	 */
+	protected $paths = [];
+
+	/**
+	 * @var array
+	 */
+	protected $excludedPaths = [];
+
+	/**
+	 * @var array
+	 */
+	protected $excludedFiles = [];
+
+	/**
+	 * @var string|null
+	 */
+	protected $model = null;
+
+	/**
+	 * @var string|null
+	 */
+	protected $fileField = null;
+
+	/**
+	 * @var string|null
+	 */
+	protected $relation = null;
+
+	/**
+	 * @var bool
+	 */
+	protected $removeDirectories = true;
+
+	/**
+	 * Filesystem $filesystem
+	 */
+	protected $filesystem;
+
+	/**
+	 * @var int $timeAfterRemove
+	 */
+	protected $timeBeforeRemove;
+
+	/**
+	 * @var int $countRemovedFiles
+	 */
+	protected $countRemovedFiles = 0;
+
+	/**
+	 * @var int $countRemovedDirectories
+	 */
+	protected $countRemovedDirectories = 0;
+
+	/**
+	 * @var int $countRemovedInstances
+	 */
+	protected $countRemovedInstances = 0;
 
 
-    /**
-     * @var array
-     */
-    protected $paths = [];
+	/**
+	 * Create a new command instance.
+	 *
+	 * @param Filesystem|\Illuminate\Contracts\Filesystem\Filesystem $filesystem
+	 */
+	public function __construct(Filesystem $filesystem)
+	{
+		parent::__construct();
 
-    /**
-     * @var array
-     */
-    protected $excludedPaths = [];
-    
-    /**
-     * @var array
-     */
-    protected $excludedFiles = [];
+		$this->filesystem = $filesystem;
 
-    /**
-     * @var string|null
-     */
-    protected $model = null;
+		$this->paths = config('file-cleaner.paths', []);
+		$this->excludedPaths = config('file-cleaner.excluded_paths', []);
+		$this->excludedFiles = config('file-cleaner.excluded_files', []);
+		$this->setRealPaths();
 
-    /**
-     * @var string|null
-     */
-    protected $fileField = null;
+		if (! is_null(config('file-cleaner.model'))) {
+			$model = config('file-cleaner.model');
+			$this->model = new $model;
+			$this->fileField = config('file-cleaner.file_field_name');
+			$this->relation = config('file-cleaner.relation');
+		}
 
-    /**
-     * @var bool
-     */
-    protected $removeDirectories = true;
-
-    /**
-     * Filesystem $filesystem
-     */
-    protected $filesystem;
-
-    /**
-     * @int $timeAfterRemove
-     */
-    protected $timeBeforeRemove;
+	}
 
 
-    /**
-     * @int $countRemovedFiles
-     */
-    protected $countRemovedFiles = 0;
+	/**
+	 * Execute the console command.
+	 *
+	 * @return mixed
+	 */
+	public function handle()
+	{
+		$this->timeBeforeRemove = $this->option('force') ? -1 : config('file-cleaner.time_before_remove', 60);
 
-    /**
-     * @int $countRemovedDirectories
-     */
-    protected $countRemovedDirectories = 0;
+		if ($directories = $this->option('directories')) {
+			$this->readPathsFromConsole($directories);
+		}
 
-    /**
-     * @int $countRemovedInstances
-     */
-    protected $countRemovedInstances = 0;
+		if ($excludedDirectory = $this->option('excluded-paths')) {
+			$this->readExcludedPathsFromConsole($excludedDirectory);
+		}
 
-    /**
-     * Create a new command instance.
-     *
-     * @param Filesystem|\Illuminate\Contracts\Filesystem\Filesystem $filesystem
-     */
-    public function __construct(Filesystem $filesystem)
-    {
-        parent::__construct();
+		if ($excludedFiles = $this->option('excluded-files')) {
+			$this->readExcludedFilesFromConsole($excludedFiles);
+		}
 
-        $this->filesystem = $filesystem;
+		$this->removeDirectories = ($removeDirectories = $this->option('remove-directories'))
+			? ($removeDirectories == "false" ? false : true)
+			: config('file-cleaner.remove_directories', true);
 
-        $this->paths = config('file-cleaner.paths', []);
-        $this->excludedPaths = config('file-cleaner.excluded_paths', []);
-        $this->excludedFiles = config('file-cleaner.excluded_files', []);
-        $this->setRealPaths();
+		if (! count($this->paths)) {
+			$this->info('Nothing to delete.');
 
-        if (!is_null(config('file-cleaner.model'))) {
-            $model = config('file-cleaner.model');
-            $this->model = new $model;
-            $this->fileField = config('file-cleaner.file_field_name');
-        }
+			return;
+		}
 
-    }
+		foreach ($this->paths as $path) {
+			$this->clear($path);
+		}
 
-    /**
-     * Execute the console command.
-     *
-     * @return mixed
-     */
-    public function handle()
-    {
-        $this->timeBeforeRemove = $this->option('force') ? -1 : config('file-cleaner.time_before_remove', 60);
-
-        if ($directories = $this->option('directories')) {
-            $this->getPathsFromConsole($directories);
-        }
-
-        if ($excludedDirectory = $this->option('excluded-paths')) {
-            $this->getExcludedPathsFromConsole($excludedDirectory);
-        }
-
-        if ($excludedFiles = $this->option('excluded-files')) {
-            $this->getExcludedFilesFromConsole($excludedFiles);
-        }
-
-        $this->removeDirectories = ($removeDirectories = $this->option('remove-directories'))
-            ? ($removeDirectories == "false" ? false : true)
-            : config('file-cleaner.remove_directories', true);
-
-        if (!count($this->paths)) {
-            $this->info('Nothing to delete.');
-            return;
-        }
-
-        foreach ($this->paths as $path) {
-            $this->clear($path);
-        }
-
-        $this->outputResultCounts();
-    }
+		$this->outputResultCounts();
+	}
 
 
-    /**
-     * @param $path
-     */
-    protected function clear($path)
-    {
-        if ($this->filesystem->exists($path)) {
+	/**
+	 * @param string $path
+	 */
+	protected function clear($path)
+	{
+		if ($this->filesystem->exists($path)) {
 
-            $this->removeFiles(
-                $this->filesystem->allFiles($path)
-            );
+			$this->removeFiles(
+				$this->filesystem->allFiles($path)
+			);
 
-            if ($this->removeDirectories === true) {
-                $this->removeDirectories(
-                    $this->filesystem->directories($path)
-                );
-            }
-        } else {
-            $this->warn('Directory ' . $path . ' does not exists');
-        }
-    }
-
-
-    /**
-     * @param array $files
-     */
-    protected function removeFiles(array $files)
-    {
-        foreach ($files as $file) {
-            if (Carbon::createFromTimestamp($file->getMTime())->diffInMinutes(Carbon::now()) > $this->timeBeforeRemove) {
-
-                if (! in_array($file->getPath(), $this->excludedPaths)
-                    && ! in_array($filename = $file->getRealPath(), $this->excludedFiles)) {
-
-                    $this->filesystem->delete($filename);
-                    $this->deleteDocument($file->getBasename());
-                    $this->info('Deleted file: ' . $filename);
-                    $this->countRemovedFiles++;
-                }
-            }
-        }
-    }
+			if ($this->removeDirectories === true) {
+				$this->removeDirectories(
+					$this->filesystem->directories($path)
+				);
+			}
+		} else {
+			$this->warn('Directory ' . $path . ' does not exists');
+		}
+	}
 
 
-    /**
-     * @param array $directories
-     */
-    protected function removeDirectories(array $directories)
-    {
-        foreach ($directories as $dir) {
-            if (!count($this->filesystem->allFiles($dir))) {
-                $this->filesystem->deleteDirectory($dir);
-                $this->info('Deleted directory: ' . $dir);
-                $this->countRemovedDirectories++;
-            }
-        }
-    }
+	/**
+	 * @param array $files
+	 */
+	protected function removeFiles(array $files)
+	{
+		foreach ($files as $file) {
+			if (Carbon::createFromTimestamp($file->getMTime())
+					->diffInMinutes(Carbon::now()) > $this->timeBeforeRemove
+			) {
+				if (! in_array($file->getPath(), $this->excludedPaths)
+					&& ! in_array($filename = $file->getRealPath(), $this->excludedFiles)) {
+
+					// If relation option set, then we remove files only if there is no related instance(s)
+					if (! is_null($this->model) && ! is_null($this->fileField) && ! is_null($this->relation)) {
+						$related = $this->model->{$this->relation};
+
+						if (is_null($related) || $related instanceof Model ||
+							($related instanceof Collection && $related->isEmpty())
+						) {
+							$this->info("File instance without relation: {$file->getRealPath()}");
+							$this->deleteFile($filename, $file->getBasename());
+						}
+					} else {
+						$this->deleteFile($filename, $file->getBasename());
+					}
+				}
+			}
+		}
+	}
 
 
-    /**
-     * Display how much files and directories totally were removed
-     */
-    protected function outputResultCounts()
-    {
-        if (!$this->countRemovedFiles && !$this->countRemovedDirectories) {
-            $this->info('Nothing to delete. All files are fresh.');
-        } else {
-            if ($this->countRemovedFiles) {
-                $this->info('Deleted ' . $this->countRemovedFiles . ' file(s)');
-            }
-            if ($this->countRemovedDirectories) {
-                $this->info('Deleted ' . $this->countRemovedDirectories . ' directory(ies).');
-            }
-            if ($this->countRemovedInstances) {
-                $this->info('Deleted ' . $this->countRemovedInstances . ' instance(s).');
-            }
-        }
-    }
+	/**
+	 * @param array $directories
+	 */
+	protected function removeDirectories(array $directories)
+	{
+		foreach ($directories as $dir) {
+			if (! count($this->filesystem->allFiles($dir))) {
+				$this->filesystem->deleteDirectory($dir);
+				$this->info('Deleted directory: ' . $dir);
+				$this->countRemovedDirectories++;
+			}
+		}
+	}
 
 
-    /**
-     * @param $name
-     * @return bool
-     */
-    protected function deleteDocument($name)
-    {
-        if (is_null($this->model) || is_null($this->fileField)) return false;
-
-        if ($instances = $this->model->where($this->fileField, $name)->get()) {
-            foreach ($instances as $instance) {
-                $instance->delete();
-                $this->countRemovedInstances++;
-            }
-        }
-
-        return true;
-    }
-
-
-    /**
-     * @param $directories
-     */
-    protected function getPathsFromConsole($directories)
-    {
-        $directories = explode(',', $directories);
-
-        $this->paths = $directories;
-
-        $this->setRealDirectoryPaths();
-    }
+	/**
+	 * Display how much files and directories totally were removed
+	 */
+	protected function outputResultCounts()
+	{
+		if (! $this->countRemovedFiles && ! $this->countRemovedDirectories) {
+			$this->info('Nothing to delete. All files are fresh.');
+		} else {
+			if ($this->countRemovedFiles) {
+				$this->info('Deleted ' . $this->countRemovedFiles . ' file(s)');
+			}
+			if ($this->countRemovedDirectories) {
+				$this->info('Deleted ' . $this->countRemovedDirectories . ' directory(ies).');
+			}
+			if ($this->countRemovedInstances) {
+				$this->info('Deleted ' . $this->countRemovedInstances . ' instance(s).');
+			}
+		}
+	}
 
 
-    /**
-     * @param $paths
-     */
-    protected function getExcludedPathsFromConsole($paths)
-    {
-        $paths = explode(',', $paths);
+	/**
+	 * @param string $filename
+	 *
+	 * @return bool
+	 */
+	protected function deleteModelInstances($filename)
+	{
+		if (is_null($this->model) || is_null($this->fileField)) return false;
 
-        $this->excludedPaths = $paths;
+		if ($instances = $this->model->where($this->fileField, $filename)->get()) {
+			foreach ($instances as $instance) {
+				$instance->delete();
+				$this->countRemovedInstances++;
+			}
+		}
 
-        $this->setRealExcludedDirectoryPaths();
-    }
-
-
-    /**
-     * @param $paths
-     */
-    protected function getExcludedFilesFromConsole($paths)
-    {
-        $paths = explode(',', $paths);
-
-        $this->excludedFiles = $paths;
-
-        $this->setRealExcludedFilesPaths();
-    }
+		return true;
+	}
 
 
-    /**
-     * Set real directories paths
-     */
-    protected function setRealPaths()
-    {
-        $this->setRealDirectoryPaths();
-        $this->setRealExcludedDirectoryPaths();
-        $this->setRealExcludedFilesPaths();
-    }
+	/**
+	 * @param string $filename
+	 * @param string $fileBaseName
+	 */
+	protected function deleteFile($filename, $fileBaseName)
+	{
+		$this->filesystem->delete($filename);
+		$this->deleteModelInstances($fileBaseName);
+		$this->info('Deleted file: ' . $filename);
+		$this->countRemovedFiles++;
+	}
 
 
-    private function setRealDirectoryPaths()
-    {
-        if ($count = count($this->paths)) {
-            for ($i = 0; $i < $count; $i++) {
-                $this->paths[$i] = realpath(base_path($this->paths[$i])) ?: $this->paths[$i];
-            }
-        }
-    }
+	/**
+	 * @param string $directories
+	 */
+	protected function readPathsFromConsole($directories)
+	{
+		$directories = explode(',', $directories);
+
+		$this->paths = $directories;
+
+		$this->setRealDirectoryPaths();
+	}
 
 
-    private function setRealExcludedDirectoryPaths()
-    {
-        if ($count = count($this->excludedPaths)) {
-            for ($i = 0; $i < $count; $i++) {
-                $this->excludedPaths[$i] = realpath(base_path($this->excludedPaths[$i])) ?: $this->excludedPaths[$i];
-            }
-        }
-    }
+	/**
+	 * @param string $paths
+	 */
+	protected function readExcludedPathsFromConsole($paths)
+	{
+		$paths = explode(',', $paths);
+
+		$this->excludedPaths = $paths;
+
+		$this->setRealExcludedDirectoryPaths();
+	}
 
 
-    private function setRealExcludedFilesPaths()
-    {
-        if ($count = count($this->excludedFiles)) {
-            for ($i = 0; $i < $count; $i++) {
-                $this->excludedFiles[$i] = realpath(base_path($this->excludedFiles[$i])) ?: $this->excludedFiles[$i];
-            }
-        }
-    }
+	/**
+	 * @param string $paths
+	 */
+	protected function readExcludedFilesFromConsole($paths)
+	{
+		$paths = explode(',', $paths);
+
+		$this->excludedFiles = $paths;
+
+		$this->setRealExcludedFilesPaths();
+	}
+
+
+	/**
+	 * Set real directories paths
+	 */
+	protected function setRealPaths()
+	{
+		$this->setRealDirectoryPaths();
+		$this->setRealExcludedDirectoryPaths();
+		$this->setRealExcludedFilesPaths();
+	}
+
+
+	private function setRealDirectoryPaths()
+	{
+		if ($count = count($this->paths)) {
+			for ($i = 0; $i < $count; $i++) {
+				$this->paths[$i] = realpath(base_path($this->paths[$i])) ?: $this->paths[$i];
+			}
+		}
+	}
+
+
+	private function setRealExcludedDirectoryPaths()
+	{
+		if ($count = count($this->excludedPaths)) {
+			for ($i = 0; $i < $count; $i++) {
+				$this->excludedPaths[$i] = realpath(base_path($this->excludedPaths[$i])) ?: $this->excludedPaths[$i];
+			}
+		}
+	}
+
+
+	private function setRealExcludedFilesPaths()
+	{
+		if ($count = count($this->excludedFiles)) {
+			for ($i = 0; $i < $count; $i++) {
+				$this->excludedFiles[$i] = realpath(base_path($this->excludedFiles[$i])) ?: $this->excludedFiles[$i];
+			}
+		}
+	}
 }

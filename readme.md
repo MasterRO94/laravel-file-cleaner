@@ -62,6 +62,7 @@ For this package you may set such configurations:
 * Model which instances will be deleted with associated files | _optional_
 * Field name that contains the name of the removing file | _optional, **only if model set**_
 * Remove directories flag, if set to true all nested directories would be removed | _default **true**_
+* Relation, remove files and model instances only if model instance does not have a set relation
 
 ## Usage
 
