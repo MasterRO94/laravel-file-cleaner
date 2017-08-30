@@ -1,7 +1,23 @@
 <p align="center">
-<a href="https://packagist.org/packages/masterro/laravel-file-cleaner"><img src="https://poser.pugx.org/masterro/laravel-file-cleaner/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/masterro/laravel-file-cleaner"><img src="https://poser.pugx.org/masterro/laravel-file-cleaner/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/masterro/laravel-file-cleaner"><img src="https://poser.pugx.org/masterro/laravel-file-cleaner/license.svg" alt="License"></a>
+    <img src="https://laravel.com/assets/img/components/logo-laravel.svg">
+</p>
+
+<p align="center">
+    <a href="https://packagist.org/packages/masterro/laravel-file-cleaner">
+        <img src="https://poser.pugx.org/masterro/laravel-file-cleaner/v/stable" alt="Latest Stable Version">
+    </a>
+    <a href="https://packagist.org/packages/masterro/laravel-file-cleaner">
+        <img src="https://poser.pugx.org/masterro/laravel-file-cleaner/downloads" alt="Total Downloads">
+    </a>
+    <a href="https://packagist.org/packages/masterro/laravel-file-cleaner">
+        <img src="https://poser.pugx.org/masterro/laravel-file-cleaner/v/unstable" alt="Latest Unstable Version">
+    </a>
+    <a href="https://github.com/MasterRO94/laravel-chronos/blob/master/LICENSE">
+        <img src="https://poser.pugx.org/masterro/laravel-file-cleaner/license" alt="License">
+    </a>
+    <a href="https://github.com/MasterRO94/laravel-chronos/blob/master/LICENSE">
+        <img src="https://poser.pugx.org/masterro/laravel-file-cleaner/composerlock" alt="composer.lock">
+    </a>
 </p>
 
 # LaravelFileCleaner
@@ -95,11 +111,4 @@ php artisan file-cleaner:clean -f --excluded-files=public/uploads/images/default
 php artisan file-cleaner:clean -f --directories=storage/temp/images,public/uploads/test --remove-directories=false
 ```
 
-
-
-
-
-
-
-
-
+#### _Буду признателен за звезды :)_

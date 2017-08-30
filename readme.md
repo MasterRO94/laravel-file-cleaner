@@ -112,10 +112,4 @@ Also you can even override `remove_directories` config value with `--remove-dire
 php artisan file-cleaner:clean -f --directories=storage/temp/images,public/uploads/test --remove-directories=false
 ```
 
-
-
-
-
-
-
-
+#### _I will be grateful if you star this project :)_
