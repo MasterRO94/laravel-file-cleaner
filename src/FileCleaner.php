@@ -2,11 +2,11 @@
 
 namespace MasterRO\LaravelFileCleaner;
 
-use App\Models\Model;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\Database\Eloquent\Model;
 
 class FileCleaner extends Command
 {

@@ -18,11 +18,9 @@ class FileCleanerServiceProvider extends ServiceProvider
 			__DIR__ . '/file-cleaner.php' => config_path('file-cleaner.php'),
 		]);
 
-		if ($this->app->runningInConsole()) {
-			$this->commands([
-				FileCleaner::class,
-			]);
-		}
+		$this->commands([
+			FileCleaner::class,
+		]);
 	}
 
 
