@@ -24,7 +24,8 @@
     },
 	"autoload": {
 		"psr-4": {
-			"MasterRO\\LaravelFileCleaner\\": "src/"
+			"MasterRO\\LaravelFileCleaner\\": "src/",
+            "Tests\\": "tests/"
 		}
 	},
     "extra": {

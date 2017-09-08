@@ -1,6 +1,7 @@
 <?php
 
-use Orchestra\Testbench\TestCase;
+namespace Tests;
+
 use Illuminate\Filesystem\Filesystem;
 use MasterRO\LaravelFileCleaner\FileCleaner;
 
