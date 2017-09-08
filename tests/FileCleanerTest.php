@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Orchestra\Testbench\TestCase;
 use Illuminate\Filesystem\Filesystem;
 use MasterRO\LaravelFileCleaner\FileCleaner;
-use Illuminate\Console\Application as ConsoleApplication;
 
 class FileCleanerTest extends TestCase
 {
@@ -16,14 +15,13 @@ class FileCleanerTest extends TestCase
 	{
 		parent::setUp();
 
+		$this->app->singleton('Illuminate\Contracts\Console\Kernel', TestKernel::class);
+
 		$this->tempDir = __DIR__ . '/tmp';
 		mkdir($this->tempDir, 0777, true);
+		$this->setTestConfig();
 
-		$config = require __DIR__ . './../src/file-cleaner.php';
-
-		config(['file-cleaner' => $config]);
-
-//		$this->app[Kernel::class]->add(FileCleaner::class);
+		$this->app['Illuminate\Contracts\Console\Kernel']->registerCommand(app(FileCleaner::class));
 	}
 
 
@@ -36,18 +34,77 @@ class FileCleanerTest extends TestCase
 	}
 
 
+	protected function setTestConfig()
+	{
+		config(['file-cleaner' => [
+			'paths'              => [
+				$this->tempDir,
+			],
+			'excluded_paths'     => [],
+			'excluded_files'     => [],
+			'time_before_remove' => 0,
+			'remove_directories' => true,
+			'model'              => null,
+			'file_field_name'    => null,
+			'relation'           => null,
+
+		]]);
+	}
+
+
+	/**
+	 * @param array $params
+	 */
+	protected function callCleaner(array $params = [])
+	{
+		$this->artisan('file-cleaner:clean', $params);
+	}
+
+
 	/**
 	 * @test
 	 */
-	public function it_deletes_files_force()
+	public function it_deletes_fresh_files_with_force()
 	{
 		$files = new Filesystem;
 
+		config(['file-cleaner.time_before_remove' => 60]);
+
 		$files->put("{$this->tempDir}/example.txt", 'test');
 
-		$this->artisan('file-cleaner:clean', ['-f']);
+		$this->callCleaner();
+
+		$this->assertFileExists("{$this->tempDir}/example.txt");
+
+		$this->callCleaner(['-f' => true]);
 
 		$this->assertFileNotExists("{$this->tempDir}/example.txt");
+	}
+
+
+	/**
+	 * @test
+	 */
+	public function it_removes_directories_when_config_set()
+	{
+		$files = new Filesystem;
+
+		config(['file-cleaner.remove_directories' => false]);
+
+		mkdir("{$this->tempDir}/dir1/dir2", 0777, true);
+
+		$files->put("{$this->tempDir}/example.txt", 'test');
+		$files->put("{$this->tempDir}/dir1/example1.txt", 'test');
+		$files->put("{$this->tempDir}/dir1/dir2/example2.txt", 'test');
+
+
+		$this->callCleaner(['-f' => true]);
+
+		$this->assertFileNotExists("{$this->tempDir}/example.txt");
+		$this->assertFileNotExists("{$this->tempDir}/dir1/example1.txt");
+		$this->assertFileNotExists("{$this->tempDir}/dir1/dir2/example2.txt");
+
+		$this->assertDirectoryExists("{$this->tempDir}/dir1/dir2");
 	}
 
 }
