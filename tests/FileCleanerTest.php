@@ -34,6 +34,98 @@ class FileCleanerTest extends TestCase
 	}
 
 
+	/**
+	 * @test
+	 */
+	public function it_deletes_fresh_files_with_force()
+	{
+		$files = new Filesystem;
+
+		config(['file-cleaner.time_before_remove' => 60]);
+
+		$files->put("{$this->tempDir}/test.txt", 'test');
+
+		$this->callCleaner();
+
+		$this->assertFileExists("{$this->tempDir}/test.txt");
+
+		$this->callCleaner(['-f' => true]);
+
+		$this->assertFileNotExists("{$this->tempDir}/test.txt");
+	}
+
+
+	/**
+	 * @test
+	 */
+	public function it_removes_directories_when_config_set()
+	{
+		config(['file-cleaner.remove_directories' => false]);
+
+		$this->createTestFilesAndDirectories();
+
+		$this->callCleaner(['-f' => true]);
+
+		$this->assertFileNotExists("{$this->tempDir}/test.txt");
+		$this->assertFileNotExists("{$this->tempDir}/dir1/example1.txt");
+		$this->assertFileNotExists("{$this->tempDir}/dir1/dir2/example2.txt");
+
+		$this->assertDirectoryExists("{$this->tempDir}/dir1/dir2");
+
+		config(['file-cleaner.remove_directories' => true]);
+
+		$this->callCleaner(['-f' => true]);
+
+		$this->assertDirectoryNotExists("{$this->tempDir}/dir1");
+	}
+
+
+	/**
+	 * @test
+	 */
+	public function it_allows_to_redefine_remove_directories_config_parameter()
+	{
+		config(['file-cleaner.remove_directories' => false]);
+		$this->createTestFilesAndDirectories();
+
+		$this->callCleaner(['-f' => true]);
+		$this->assertDirectoryExists("{$this->tempDir}/dir1/dir2");
+
+		$this->createTestFilesAndDirectories();
+
+		$this->callCleaner(['-f' => true, '--remove-directories' => true]);
+		$this->assertDirectoryNotExists("{$this->tempDir}/dir1");
+	}
+
+
+	/**
+	 * @test
+	 */
+	public function it_can_delete_files_in_specified_directories()
+	{
+		$files = new Filesystem;
+
+		config(['file-cleaner.paths' => [
+			"{$this->tempDir}/dir1",
+			"{$this->tempDir}/dir2",
+		]]);
+
+		$files->makeDirectory("{$this->tempDir}/dir1", 0777, true);
+		$files->makeDirectory("{$this->tempDir}/dir2", 0777, true);
+		$files->makeDirectory("{$this->tempDir}/dir3", 0777, true);
+
+		$files->put("{$this->tempDir}/dir1/test.txt", 'test');
+		$files->put("{$this->tempDir}/dir2/test.txt", 'test');
+		$files->put("{$this->tempDir}/dir3/test.txt", 'test');
+
+		$this->callCleaner(['-f' => true]);
+
+		$this->assertFileNotExists("{$this->tempDir}/dir1/test.txt");
+		$this->assertFileNotExists("{$this->tempDir}/dir2/test.txt");
+		$this->assertFileExists("{$this->tempDir}/dir3/test.txt");
+	}
+
+
 	protected function setTestConfig()
 	{
 		config(['file-cleaner' => [
@@ -61,50 +153,18 @@ class FileCleanerTest extends TestCase
 	}
 
 
-	/**
-	 * @test
-	 */
-	public function it_deletes_fresh_files_with_force()
+	protected function createTestFilesAndDirectories()
 	{
 		$files = new Filesystem;
 
-		config(['file-cleaner.time_before_remove' => 60]);
+		$path = "{$this->tempDir}/dir1/dir2";
 
-		$files->put("{$this->tempDir}/example.txt", 'test');
+		$files->deleteDirectory($path);
+		$files->makeDirectory($path, 0777, true);
 
-		$this->callCleaner();
-
-		$this->assertFileExists("{$this->tempDir}/example.txt");
-
-		$this->callCleaner(['-f' => true]);
-
-		$this->assertFileNotExists("{$this->tempDir}/example.txt");
-	}
-
-
-	/**
-	 * @test
-	 */
-	public function it_removes_directories_when_config_set()
-	{
-		$files = new Filesystem;
-
-		config(['file-cleaner.remove_directories' => false]);
-
-		mkdir("{$this->tempDir}/dir1/dir2", 0777, true);
-
-		$files->put("{$this->tempDir}/example.txt", 'test');
+		$files->put("{$this->tempDir}/test.txt", 'test');
 		$files->put("{$this->tempDir}/dir1/example1.txt", 'test');
 		$files->put("{$this->tempDir}/dir1/dir2/example2.txt", 'test');
-
-
-		$this->callCleaner(['-f' => true]);
-
-		$this->assertFileNotExists("{$this->tempDir}/example.txt");
-		$this->assertFileNotExists("{$this->tempDir}/dir1/example1.txt");
-		$this->assertFileNotExists("{$this->tempDir}/dir1/dir2/example2.txt");
-
-		$this->assertDirectoryExists("{$this->tempDir}/dir1/dir2");
 	}
 
 }
