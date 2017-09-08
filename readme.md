@@ -12,6 +12,9 @@
     <a href="https://packagist.org/packages/masterro/laravel-file-cleaner">
         <img src="https://poser.pugx.org/masterro/laravel-file-cleaner/v/unstable" alt="Latest Unstable Version">
     </a>
+    <a href="https://travis-ci.org/MasterRO94/laravel-file-cleaner">
+        <img src="https://travis-ci.org/MasterRO94/laravel-file-cleaner.svg">
+    </a>
     <a href="https://insight.sensiolabs.com/projects/e34c16b0-4067-4473-ba3b-d916219ba5c6">
         <img src="https://img.shields.io/sensiolabs/i/e34c16b0-4067-4473-ba3b-d916219ba5c6.svg" alt="SensioLabsInsight">
     </a>

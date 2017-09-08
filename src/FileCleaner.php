@@ -100,19 +100,6 @@ class FileCleaner extends Command
 		parent::__construct();
 
 		$this->filesystem = $filesystem;
-
-		$this->paths = config('file-cleaner.paths', []);
-		$this->excludedPaths = config('file-cleaner.excluded_paths', []);
-		$this->excludedFiles = config('file-cleaner.excluded_files', []);
-		$this->setRealPaths();
-
-		if (! is_null(config('file-cleaner.model'))) {
-			$model = config('file-cleaner.model');
-			$this->model = new $model;
-			$this->fileField = config('file-cleaner.file_field_name');
-			$this->relation = config('file-cleaner.relation');
-		}
-
 	}
 
 
@@ -123,6 +110,8 @@ class FileCleaner extends Command
 	 */
 	public function handle()
 	{
+		$this->readConfigs();
+
 		$this->timeBeforeRemove = $this->option('force') ? -1 : config('file-cleaner.time_before_remove', 60);
 
 		if ($directories = $this->option('directories')) {
@@ -138,7 +127,7 @@ class FileCleaner extends Command
 		}
 
 		$this->removeDirectories = ($removeDirectories = $this->option('remove-directories'))
-			? ($removeDirectories == "false" ? false : true)
+			? ($removeDirectories == "false" && $removeDirectories !== true ? false : true)
 			: config('file-cleaner.remove_directories', true);
 
 		if (! count($this->paths)) {
@@ -183,26 +172,28 @@ class FileCleaner extends Command
 	protected function removeFiles(array $files)
 	{
 		foreach ($files as $file) {
+			// File fresh
 			if (Carbon::createFromTimestamp($file->getMTime())
-					->diffInMinutes(Carbon::now()) > $this->timeBeforeRemove
-			) {
-				if (! in_array($file->getPath(), $this->excludedPaths)
-					&& ! in_array($filename = $file->getRealPath(), $this->excludedFiles)) {
+					->diffInMinutes(Carbon::now()) <= $this->timeBeforeRemove
+			) continue;
 
-					// If relation option set, then we remove files only if there is no related instance(s)
-					if (! is_null($this->model) && ! is_null($this->fileField) && ! is_null($this->relation)) {
-						$related = $this->model->{$this->relation};
+			// File should be excluded
+			if (in_array($file->getPath(), $this->excludedPaths)
+				|| in_array($filename = $file->getRealPath(), $this->excludedFiles)
+			) continue;
 
-						if (is_null($related) || $related instanceof Model ||
-							($related instanceof Collection && $related->isEmpty())
-						) {
-							$this->info("File instance without relation: {$file->getRealPath()}");
-							$this->deleteFile($filename, $file->getBasename());
-						}
-					} else {
-						$this->deleteFile($filename, $file->getBasename());
-					}
+			// If relation option set, then we remove files only if there is no related instance(s)
+			if (! is_null($this->model) && ! is_null($this->fileField) && ! is_null($this->relation)) {
+				$related = $this->model->{$this->relation};
+
+				if (is_null($related) || $related instanceof Model ||
+					($related instanceof Collection && $related->isEmpty())
+				) {
+					$this->info("File instance without relation: {$file->getRealPath()}");
+					$this->deleteFile($filename, $file->getBasename());
 				}
+			} else {
+				$this->deleteFile($filename, $file->getBasename());
 			}
 		}
 	}
@@ -316,9 +307,6 @@ class FileCleaner extends Command
 	}
 
 
-	/**
-	 * Set real directories paths
-	 */
 	protected function setRealPaths()
 	{
 		$this->setRealDirectoryPaths();
@@ -353,6 +341,25 @@ class FileCleaner extends Command
 			for ($i = 0; $i < $count; $i++) {
 				$this->excludedFiles[$i] = realpath(base_path($this->excludedFiles[$i])) ?: $this->excludedFiles[$i];
 			}
+		}
+	}
+
+
+	/**
+	 * Set properties from set configs
+	 */
+	protected function readConfigs()
+	{
+		$this->paths = config('file-cleaner.paths', []);
+		$this->excludedPaths = config('file-cleaner.excluded_paths', []);
+		$this->excludedFiles = config('file-cleaner.excluded_files', []);
+		$this->setRealPaths();
+
+		if (! is_null(config('file-cleaner.model'))) {
+			$model = config('file-cleaner.model');
+			$this->model = new $model;
+			$this->fileField = config('file-cleaner.file_field_name');
+			$this->relation = config('file-cleaner.relation');
 		}
 	}
 }
