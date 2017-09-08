@@ -5,6 +5,8 @@ namespace Tests;
 class TestCase extends \Orchestra\Testbench\TestCase
 {
 	/**
+	 * This adds support for php 5.5
+	 *
 	 * @param string $directory
 	 * @param string $message
 	 */
@@ -19,6 +21,8 @@ class TestCase extends \Orchestra\Testbench\TestCase
 
 
 	/**
+	 * This adds support for php 5.5
+	 *
 	 * @param string $directory
 	 * @param string $message
 	 */

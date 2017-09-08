@@ -44,11 +44,11 @@ class FileCleanerTest extends TestCase
 
 		$files->put("{$this->tempDir}/test.txt", 'test');
 
-		$this->callCleaner();
+		$this->callCleaner(false);
 
 		$this->assertFileExists("{$this->tempDir}/test.txt");
 
-		$this->callCleaner(['-f' => true]);
+		$this->callCleaner();
 
 		$this->assertFileNotExists("{$this->tempDir}/test.txt");
 	}
@@ -61,9 +61,9 @@ class FileCleanerTest extends TestCase
 	{
 		config(['file-cleaner.remove_directories' => false]);
 
-		$this->createTestFilesAndDirectories();
+		$this->createNestedTestFilesAndDirectories();
 
-		$this->callCleaner(['-f' => true]);
+		$this->callCleaner();
 
 		$this->assertFileNotExists("{$this->tempDir}/test.txt");
 		$this->assertFileNotExists("{$this->tempDir}/dir1/example1.txt");
@@ -73,7 +73,7 @@ class FileCleanerTest extends TestCase
 
 		config(['file-cleaner.remove_directories' => true]);
 
-		$this->callCleaner(['-f' => true]);
+		$this->callCleaner();
 
 		$this->assertDirectoryNotExists("{$this->tempDir}/dir1");
 	}
@@ -82,17 +82,17 @@ class FileCleanerTest extends TestCase
 	/**
 	 * @test
 	 */
-	public function it_allows_to_redefine_remove_directories_config_parameter()
+	public function it_can_override_remove_directories_config_parameter()
 	{
 		config(['file-cleaner.remove_directories' => false]);
-		$this->createTestFilesAndDirectories();
+		$this->createNestedTestFilesAndDirectories();
 
-		$this->callCleaner(['-f' => true]);
+		$this->callCleaner();
 		$this->assertDirectoryExists("{$this->tempDir}/dir1/dir2");
 
-		$this->createTestFilesAndDirectories();
+		$this->createNestedTestFilesAndDirectories();
 
-		$this->callCleaner(['-f' => true, '--remove-directories' => true]);
+		$this->callCleaner(true, ['--remove-directories' => true]);
 		$this->assertDirectoryNotExists("{$this->tempDir}/dir1");
 	}
 
@@ -102,26 +102,129 @@ class FileCleanerTest extends TestCase
 	 */
 	public function it_can_delete_files_in_specified_directories()
 	{
-		$files = new Filesystem;
-
 		config(['file-cleaner.paths' => [
 			"{$this->tempDir}/dir1",
 			"{$this->tempDir}/dir2",
 		]]);
 
-		$files->makeDirectory("{$this->tempDir}/dir1", 0777, true);
-		$files->makeDirectory("{$this->tempDir}/dir2", 0777, true);
-		$files->makeDirectory("{$this->tempDir}/dir3", 0777, true);
+		$this->createTestDirectoriesAndFiles(3);
 
-		$files->put("{$this->tempDir}/dir1/test.txt", 'test');
-		$files->put("{$this->tempDir}/dir2/test.txt", 'test');
-		$files->put("{$this->tempDir}/dir3/test.txt", 'test');
-
-		$this->callCleaner(['-f' => true]);
+		$this->callCleaner();
 
 		$this->assertFileNotExists("{$this->tempDir}/dir1/test.txt");
 		$this->assertFileNotExists("{$this->tempDir}/dir2/test.txt");
 		$this->assertFileExists("{$this->tempDir}/dir3/test.txt");
+	}
+
+
+	/**
+	 * @test
+	 */
+	public function it_can_override_paths_config_parameter_with_directories_parameter()
+	{
+		config(['file-cleaner.paths' => [
+			"{$this->tempDir}/dir1",
+			"{$this->tempDir}/dir2",
+		]]);
+
+		$this->createTestDirectoriesAndFiles(4);
+
+		$this->callCleaner(true, ['--directories' => "{$this->tempDir}/dir3,{$this->tempDir}/dir4"]);
+
+		$this->assertFileExists("{$this->tempDir}/dir1/test.txt");
+		$this->assertFileExists("{$this->tempDir}/dir2/test.txt");
+		$this->assertFileNotExists("{$this->tempDir}/dir3/test.txt");
+		$this->assertFileNotExists("{$this->tempDir}/dir4/test.txt");
+	}
+
+
+	/**
+	 * @test
+	 */
+	public function it_can_exclude_directories_from_cleaning()
+	{
+		config(['file-cleaner.excluded_paths' => [
+			"{$this->tempDir}/dir1",
+		]]);
+
+		$this->createTestDirectoriesAndFiles();
+
+		$this->callCleaner();
+
+		$this->assertFileExists("{$this->tempDir}/dir1/test.txt");
+		$this->assertDirectoryNotExists("{$this->tempDir}/dir2");
+	}
+
+
+	/**
+	 * @test
+	 */
+	public function it_can_override_excluded_directories_from_cleaning()
+	{
+		config(['file-cleaner.excluded_paths' => [
+			"{$this->tempDir}/dir1",
+			"{$this->tempDir}/dir2",
+		]]);
+
+		$this->createTestDirectoriesAndFiles(4);
+
+		$this->callCleaner(true, ['--excluded-paths' => "{$this->tempDir}/dir3,{$this->tempDir}/dir4"]);
+
+		$this->assertFileExists("{$this->tempDir}/dir3/test.txt");
+		$this->assertFileExists("{$this->tempDir}/dir4/test.txt");
+		$this->assertDirectoryNotExists("{$this->tempDir}/dir1");
+		$this->assertDirectoryNotExists("{$this->tempDir}/dir2");
+	}
+
+
+	/**
+	 * @test
+	 */
+	public function it_can_exclude_files_from_cleaning()
+	{
+		$files = new Filesystem;
+
+		config(['file-cleaner.excluded_files' => [
+			"{$this->tempDir}/dir1/test.txt",
+		]]);
+
+		$this->createTestDirectoriesAndFiles();
+
+		$files->put("{$this->tempDir}/dir1/test2.txt", 'test');
+
+		$this->callCleaner();
+
+		$this->assertFileExists("{$this->tempDir}/dir1/test.txt");
+		$this->assertFileNotExists("{$this->tempDir}/dir1/test2.txt");
+		$this->assertDirectoryNotExists("{$this->tempDir}/dir2");
+	}
+
+
+	/**
+	 * @test
+	 */
+	public function it_can_override_excluded_files_from_cleaning()
+	{
+		$files = new Filesystem;
+
+		config(['file-cleaner.excluded_files' => [
+			"{$this->tempDir}/dir1/test.txt",
+			"{$this->tempDir}/dir2/test.txt",
+		]]);
+
+		$this->createTestDirectoriesAndFiles(4);
+
+		$files->put("{$this->tempDir}/dir1/test2.txt", 'test');
+		$files->put("{$this->tempDir}/dir2/test2.txt", 'test');
+
+		$this->callCleaner(true, ['--excluded-files' => "{$this->tempDir}/dir1/test2.txt,{$this->tempDir}/dir2/test2.txt"]);
+
+		$this->assertFileExists("{$this->tempDir}/dir1/test2.txt");
+		$this->assertFileExists("{$this->tempDir}/dir2/test2.txt");
+		$this->assertFileNotExists("{$this->tempDir}/dir1/test.txt");
+		$this->assertFileNotExists("{$this->tempDir}/dir2/test.txt");
+		$this->assertDirectoryNotExists("{$this->tempDir}/dir3");
+		$this->assertDirectoryNotExists("{$this->tempDir}/dir4");
 	}
 
 
@@ -144,26 +247,51 @@ class FileCleanerTest extends TestCase
 
 
 	/**
+	 * @param bool $force
 	 * @param array $params
 	 */
-	protected function callCleaner(array $params = [])
+	protected function callCleaner($force = true, array $params = [])
 	{
+		$params = $force ? array_merge($params, ['-f' => true]) : $params;
+
 		$this->artisan('file-cleaner:clean', $params);
 	}
 
 
-	protected function createTestFilesAndDirectories()
+	protected function createNestedTestFilesAndDirectories($depth = 3)
 	{
 		$files = new Filesystem;
 
-		$path = "{$this->tempDir}/dir1/dir2";
+		$path = $this->tempDir;
+
+		for ($i = 1; $i <= $depth; ++$i) {
+			$path .= "/dir{$i}";
+		}
 
 		$files->deleteDirectory($path);
 		$files->makeDirectory($path, 0777, true);
 
+		$path = $this->tempDir;
+
 		$files->put("{$this->tempDir}/test.txt", 'test');
-		$files->put("{$this->tempDir}/dir1/example1.txt", 'test');
-		$files->put("{$this->tempDir}/dir1/dir2/example2.txt", 'test');
+		for ($i = 1; $i <= $depth; ++$i) {
+			$path .= "/dir{$i}";
+			$files->put("{$path}/test.txt", 'test');
+		}
+	}
+
+
+	/**
+	 * @param int $count
+	 */
+	protected function createTestDirectoriesAndFiles($count = 2)
+	{
+		$files = new Filesystem;
+
+		for ($i = 1; $i <= $count; ++$i) {
+			$files->makeDirectory("{$this->tempDir}/dir{$i}", 0777, true);
+			$files->put("{$this->tempDir}/dir{$i}/test.txt", 'test');
+		}
 	}
 
 }

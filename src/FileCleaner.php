@@ -172,26 +172,28 @@ class FileCleaner extends Command
 	protected function removeFiles(array $files)
 	{
 		foreach ($files as $file) {
+			// File fresh
 			if (Carbon::createFromTimestamp($file->getMTime())
-					->diffInMinutes(Carbon::now()) > $this->timeBeforeRemove
-			) {
-				if (! in_array($file->getPath(), $this->excludedPaths)
-					&& ! in_array($filename = $file->getRealPath(), $this->excludedFiles)) {
+					->diffInMinutes(Carbon::now()) <= $this->timeBeforeRemove
+			) continue;
 
-					// If relation option set, then we remove files only if there is no related instance(s)
-					if (! is_null($this->model) && ! is_null($this->fileField) && ! is_null($this->relation)) {
-						$related = $this->model->{$this->relation};
+			// File should be excluded
+			if (in_array($file->getPath(), $this->excludedPaths)
+				|| in_array($filename = $file->getRealPath(), $this->excludedFiles)
+			) continue;
 
-						if (is_null($related) || $related instanceof Model ||
-							($related instanceof Collection && $related->isEmpty())
-						) {
-							$this->info("File instance without relation: {$file->getRealPath()}");
-							$this->deleteFile($filename, $file->getBasename());
-						}
-					} else {
-						$this->deleteFile($filename, $file->getBasename());
-					}
+			// If relation option set, then we remove files only if there is no related instance(s)
+			if (! is_null($this->model) && ! is_null($this->fileField) && ! is_null($this->relation)) {
+				$related = $this->model->{$this->relation};
+
+				if (is_null($related) || $related instanceof Model ||
+					($related instanceof Collection && $related->isEmpty())
+				) {
+					$this->info("File instance without relation: {$file->getRealPath()}");
+					$this->deleteFile($filename, $file->getBasename());
 				}
+			} else {
+				$this->deleteFile($filename, $file->getBasename());
 			}
 		}
 	}
@@ -305,9 +307,6 @@ class FileCleaner extends Command
 	}
 
 
-	/**
-	 * Set real directories paths
-	 */
 	protected function setRealPaths()
 	{
 		$this->setRealDirectoryPaths();
