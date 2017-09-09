@@ -3,6 +3,7 @@
 namespace MasterRO\LaravelFileCleaner;
 
 use Carbon\Carbon;
+use InvalidArgumentException;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Filesystem\Filesystem;
@@ -184,11 +185,10 @@ class FileCleaner extends Command
 
 			// If relation option set, then we remove files only if there is no related instance(s)
 			if (! is_null($this->model) && ! is_null($this->fileField) && ! is_null($this->relation)) {
+				$this->model = $this->model->where($this->fileField, $file->getBasename())->first();
 				$related = $this->model->{$this->relation};
 
-				if (is_null($related) || $related instanceof Model ||
-					($related instanceof Collection && $related->isEmpty())
-				) {
+				if (is_null($related) || ($related instanceof Collection && $related->isEmpty())) {
 					$this->info("File instance without relation: {$file->getRealPath()}");
 					$this->deleteFile($filename, $file->getBasename());
 				}
@@ -357,7 +357,12 @@ class FileCleaner extends Command
 
 		if (! is_null(config('file-cleaner.model'))) {
 			$model = config('file-cleaner.model');
-			$this->model = new $model;
+			$this->model = app($model);
+
+			if (! is_a($this->model, Model::class)) {
+				throw new InvalidArgumentException("Model [{$model}] should be an instance of " . Model::class);
+			}
+
 			$this->fileField = config('file-cleaner.file_field_name');
 			$this->relation = config('file-cleaner.relation');
 		}
