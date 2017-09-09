@@ -26,7 +26,10 @@
 		"psr-4": {
 			"MasterRO\\LaravelFileCleaner\\": "src/",
             "Tests\\": "tests/"
-		}
+		},
+      "classmap": [
+        "tests/Database/migrations"
+      ]
 	},
     "extra": {
       "laravel": {

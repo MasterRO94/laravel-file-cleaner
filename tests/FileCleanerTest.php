@@ -2,6 +2,12 @@
 
 namespace Tests;
 
+use stdClass;
+use CreateFilesTable;
+use CreateTestOneTable;
+use CreateTestCollectionTable;
+use Tests\Database\Models\File;
+use Tests\Database\Models\TestOne;
 use Illuminate\Filesystem\Filesystem;
 use MasterRO\LaravelFileCleaner\FileCleaner;
 
@@ -228,6 +234,201 @@ class FileCleanerTest extends TestCase
 	}
 
 
+	/**
+	 * @test
+	 */
+	public function it_deletes_associated_model_instance()
+	{
+		$this->setUpDatabase($this->app);
+
+		$this->createTestDirectoriesAndFiles(1);
+
+		config([
+			'file-cleaner.model'           => File::class,
+			'file-cleaner.file_field_name' => 'name',
+		]);
+
+		File::create(['name' => 'test.txt']);
+
+		$this->callCleaner();
+
+		$this->assertCount(0, File::where(['name' => 'test.txt'])->get());
+		$this->assertFileNotExists("{$this->tempDir}/dir1/test1.txt");
+	}
+
+
+	/**
+	 * @test
+	 */
+	public function it_does_not_delete_associated_model_instance_if_field_name_wrong()
+	{
+		$this->setUpDatabase($this->app);
+
+		$this->createTestDirectoriesAndFiles(1);
+
+		config([
+			'file-cleaner.model'           => File::class,
+			'file-cleaner.file_field_name' => 'wrong_name',
+		]);
+
+		File::create(['name' => 'test.txt']);
+
+		$this->callCleaner();
+
+		$this->assertCount(1, File::where(['name' => 'test.txt'])->get());
+		$this->assertFileNotExists("{$this->tempDir}/dir1/test1.txt");
+	}
+
+
+	/**
+	 * @test
+	 * @expectedException \InvalidArgumentException
+	 */
+	public function model_should_be_an_instance_of_eloquent()
+	{
+		$this->setUpDatabase($this->app);
+
+		$this->createTestDirectoriesAndFiles(1);
+
+		config([
+			'file-cleaner.model'           => stdClass::class,
+			'file-cleaner.file_field_name' => 'name',
+		]);
+
+		$this->callCleaner();
+	}
+
+
+	/**
+	 * @test
+	 */
+	public function it_can_delete_model_instance_if_it_does_not_have_related_instance()
+	{
+		$this->setUpDatabase($this->app);
+
+		$this->createTestDirectoriesAndFiles(1);
+
+		config([
+			'file-cleaner.model'           => File::class,
+			'file-cleaner.file_field_name' => 'name',
+			'file-cleaner.relation'        => 'testOne',
+		]);
+
+		File::create(['name' => 'test.txt']);
+
+		$this->callCleaner();
+
+		$this->assertCount(0, File::where(['name' => 'test.txt'])->get());
+		$this->assertFileNotExists("{$this->tempDir}/dir1/test.txt");
+	}
+
+
+	/**
+	 * @test
+	 */
+	public function it_should_not_delete_model_instance_if_it_has_related_instance()
+	{
+		$this->setUpDatabase($this->app);
+
+		$this->createTestDirectoriesAndFiles(1);
+
+		config([
+			'file-cleaner.model'           => File::class,
+			'file-cleaner.file_field_name' => 'name',
+			'file-cleaner.relation'        => 'testOne',
+		]);
+
+		$oneRelated = TestOne::create(['name' => 'test']);
+		$oneRelated->files()->create(['name' => 'test.txt']);
+
+		$this->callCleaner();
+
+		$this->assertCount(1, File::where(['name' => 'test.txt'])->get());
+		$this->assertFileExists("{$this->tempDir}/dir1/test.txt");
+	}
+
+
+	/**
+	 * @test
+	 */
+	public function it_can_delete_model_instance_if_it_does_not_have_related_instances()
+	{
+		$this->setUpDatabase($this->app);
+
+		$this->createTestDirectoriesAndFiles(1);
+
+		config([
+			'file-cleaner.model'           => File::class,
+			'file-cleaner.file_field_name' => 'name',
+			'file-cleaner.relation'        => 'testCollection',
+		]);
+
+		File::create(['name' => 'test.txt']);
+
+		$this->callCleaner();
+
+		$this->assertCount(0, File::where(['name' => 'test.txt'])->get());
+		$this->assertFileNotExists("{$this->tempDir}/dir1/test.txt");
+	}
+
+
+	/**
+	 * @test
+	 */
+	public function it_should_not_delete_file_and_model_instance_if_it_has_related_instances()
+	{
+		$this->setUpDatabase($this->app);
+
+		$this->createTestDirectoriesAndFiles(1);
+
+		config([
+			'file-cleaner.model'           => File::class,
+			'file-cleaner.file_field_name' => 'name',
+			'file-cleaner.relation'        => 'testCollection',
+		]);
+
+		$file = File::create(['name' => 'test.txt']);
+		$file->testCollection()->createMany([
+			['name' => 'test'],
+			['name' => 'test2'],
+		]);
+
+		$this->callCleaner();
+
+		$this->assertCount(1, File::where(['name' => 'test.txt'])->get());
+		$this->assertFileExists("{$this->tempDir}/dir1/test.txt");
+	}
+
+
+	/**
+	 * Set up the environment.
+	 *
+	 * @param \Illuminate\Foundation\Application $app
+	 */
+	protected function getEnvironmentSetUp($app)
+	{
+		$app['config']->set('database.default', 'sqlite');
+		$app['config']->set('database.connections.sqlite', [
+			'driver'   => 'sqlite',
+			'database' => ':memory:',
+			'prefix'   => '',
+		]);
+	}
+
+
+	/**
+	 * Set up the database.
+	 *
+	 * @param \Illuminate\Foundation\Application $app
+	 */
+	protected function setUpDatabase($app)
+	{
+		(new CreateFilesTable)->up();
+		(new CreateTestOneTable)->up();
+		(new CreateTestCollectionTable)->up();
+	}
+
+
 	protected function setTestConfig()
 	{
 		config(['file-cleaner' => [
@@ -258,6 +459,9 @@ class FileCleanerTest extends TestCase
 	}
 
 
+	/**
+	 * @param int $depth
+	 */
 	protected function createNestedTestFilesAndDirectories($depth = 3)
 	{
 		$files = new Filesystem;
