@@ -1,13 +1,13 @@
 <?php
 
-namespace Tests;
+namespace MasterRO\LaravelFileCleaner\Tests;
 
 use stdClass;
 use CreateFilesTable;
 use CreateTestOneTable;
 use CreateTestCollectionTable;
-use Tests\Database\Models\File;
-use Tests\Database\Models\TestOne;
+use MasterRO\LaravelFileCleaner\Tests\Database\Models\File;
+use MasterRO\LaravelFileCleaner\Tests\Database\Models\TestOne;
 use Illuminate\Filesystem\Filesystem;
 use MasterRO\LaravelFileCleaner\FileCleaner;
 
