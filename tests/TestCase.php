@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests;
+namespace MasterRO\LaravelFileCleaner\Tests;
 
 class TestCase extends \Orchestra\Testbench\TestCase
 {

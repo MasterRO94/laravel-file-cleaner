@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Database\Models;
+namespace MasterRO\LaravelFileCleaner\Tests\Database\Models;
 
 use Illuminate\Database\Eloquent\Model;
 

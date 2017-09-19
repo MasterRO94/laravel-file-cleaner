@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests;
+namespace MasterRO\LaravelFileCleaner\Tests;
 
 class TestKernel extends \Orchestra\Testbench\Console\Kernel
 {
