@@ -191,7 +191,7 @@ class FileCleaner extends Command
 				if (! $model) throw new ModelNotFoundException(
 					sprintf(
 						"'Instance of [%s] not found with '%s' by '%s' field.'",
-						get_class($model),
+						is_object($model) ? get_class($model) : $model,
 						$fileBasename,
 						$this->fileField
 					)
