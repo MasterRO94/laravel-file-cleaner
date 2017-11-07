@@ -6,10 +6,10 @@ use stdClass;
 use CreateFilesTable;
 use CreateTestOneTable;
 use CreateTestCollectionTable;
-use MasterRO\LaravelFileCleaner\Tests\Database\Models\File;
-use MasterRO\LaravelFileCleaner\Tests\Database\Models\TestOne;
 use Illuminate\Filesystem\Filesystem;
 use MasterRO\LaravelFileCleaner\FileCleaner;
+use MasterRO\LaravelFileCleaner\Tests\Database\Models\File;
+use MasterRO\LaravelFileCleaner\Tests\Database\Models\TestOne;
 
 class FileCleanerTest extends TestCase
 {
@@ -397,6 +397,29 @@ class FileCleanerTest extends TestCase
 
 		$this->assertCount(1, File::where(['name' => 'test.txt'])->get());
 		$this->assertFileExists("{$this->tempDir}/dir1/test.txt");
+	}
+
+
+	/**
+	 * @test
+	 * @expectedException \Illuminate\Database\Eloquent\ModelNotFoundException
+	 */
+	public function it_throws_exception_if_model_instance_not_found()
+	{
+		$this->setUpDatabase($this->app);
+
+		$this->createTestDirectoriesAndFiles(1);
+
+		config([
+			'file-cleaner.model'           => File::class,
+			'file-cleaner.file_field_name' => 'name',
+			'file-cleaner.relation'        => 'testOne',
+		]);
+
+		$oneRelated = TestOne::create(['name' => 'test']);
+		$oneRelated->files()->create(['name' => 'wrong_name.txt']);
+
+		$this->callCleaner();
 	}
 
 
