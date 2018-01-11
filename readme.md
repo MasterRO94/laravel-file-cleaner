@@ -21,9 +21,6 @@
     <a href="https://github.com/MasterRO94/laravel-chronos/blob/master/LICENSE">
         <img src="https://poser.pugx.org/masterro/laravel-file-cleaner/license" alt="License">
     </a>
-    <a href="https://github.com/MasterRO94/laravel-chronos/blob/master/LICENSE">
-        <img src="https://poser.pugx.org/masterro/laravel-file-cleaner/composerlock" alt="composer.lock">
-    </a>
 </p>
 
 # LaravelFileCleaner
@@ -75,7 +72,7 @@ For this package you may set such configurations:
 ### Scheduling
 
 Add new command call to schedule function:
-> Have a look at [Laravel's task scheduling documentation](https://laravel.com/docs/5.2/scheduling), if you need any help.
+> Have a look at [Laravel's task scheduling documentation](https://laravel.com/docs/scheduling), if you need any help.
 
 ```php
 protected function schedule(Schedule $schedule)

@@ -3,12 +3,12 @@
 namespace MasterRO\LaravelFileCleaner;
 
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use InvalidArgumentException;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class FileCleaner extends Command
 {
@@ -152,7 +152,6 @@ class FileCleaner extends Command
 	protected function clear($path)
 	{
 		if ($this->filesystem->exists($path)) {
-
 			$this->removeFiles(
 				$this->filesystem->allFiles($path)
 			);
@@ -284,9 +283,7 @@ class FileCleaner extends Command
 	 */
 	protected function readPathsFromConsole($directories)
 	{
-		$directories = explode(',', $directories);
-
-		$this->paths = $directories;
+		$this->paths = explode(',', $directories);
 
 		$this->setRealDirectoryPaths();
 	}
@@ -297,9 +294,7 @@ class FileCleaner extends Command
 	 */
 	protected function readExcludedPathsFromConsole($paths)
 	{
-		$paths = explode(',', $paths);
-
-		$this->excludedPaths = $paths;
+		$this->excludedPaths = explode(',', $paths);
 
 		$this->setRealExcludedDirectoryPaths();
 	}
@@ -310,9 +305,7 @@ class FileCleaner extends Command
 	 */
 	protected function readExcludedFilesFromConsole($paths)
 	{
-		$paths = explode(',', $paths);
-
-		$this->excludedFiles = $paths;
+		$this->excludedFiles = explode(',', $paths);
 
 		$this->setRealExcludedFilesPaths();
 	}

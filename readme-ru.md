@@ -21,9 +21,6 @@
     <a href="https://github.com/MasterRO94/laravel-chronos/blob/master/LICENSE">
         <img src="https://poser.pugx.org/masterro/laravel-file-cleaner/license" alt="License">
     </a>
-    <a href="https://github.com/MasterRO94/laravel-chronos/blob/master/LICENSE">
-        <img src="https://poser.pugx.org/masterro/laravel-file-cleaner/composerlock" alt="composer.lock">
-    </a>
 </p>
 
 # LaravelFileCleaner
@@ -75,7 +72,7 @@ php artisan vendor:publish --provider="MasterRO\LaravelFileCleaner\FileCleanerSe
 ### Scheduling
 
 Добавьте вызов команды в фукцию `schedule`:
-> [Документация по Task Scheduling](https://laravel.com/docs/5.2/scheduling), если есть вопросы.
+> [Документация по Task Scheduling](https://laravel.com/docs/scheduling), если есть вопросы.
 
 ```php
 protected function schedule(Schedule $schedule)
