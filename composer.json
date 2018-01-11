@@ -1,40 +1,49 @@
 {
-    "name": "masterro/laravel-file-cleaner",
-    "description": "Laravel console command for deleting temp files and associated model instances.",
-    "license": "MIT",
-    "keywords": ["laravel", "files", "delete", "clean"],
-    "authors": [
-        {
-            "name": "Ihoshyn Roman",
-            "email": "igoshin18@gmail.com"
-        }
-    ],
-    "require": {
-        "php": ">=5.5.9",
-        "illuminate/support": "^5.1,<5.6",
-        "illuminate/filesystem": "^5.1,<5.6",
-        "illuminate/console": "^5.1,<5.6",
-        "illuminate/database": "^5.1,<5.6",
-        "nesbot/carbon": "^1.21"
-    },
-    "require-dev": {
-      "phpunit/phpunit": "~4.0|~5.0|~6.0",
-      "orchestra/testbench": ">3.0,<3.6"
-    },
+	"name": "masterro/laravel-file-cleaner",
+	"description": "Laravel console command for deleting temp files and associated model instances.",
+	"license": "MIT",
+	"keywords": [
+		"laravel",
+		"files",
+		"delete",
+		"clean"
+	],
+	"authors": [
+		{
+			"name": "Ihoshyn Roman",
+			"email": "igoshin18@gmail.com"
+		}
+	],
+	"require": {
+		"php": ">=5.5.9",
+		"illuminate/support": "^5.1,<5.6",
+		"illuminate/filesystem": "^5.1,<5.6",
+		"illuminate/console": "^5.1,<5.6",
+		"illuminate/database": "^5.1,<5.6",
+		"nesbot/carbon": "^1.21"
+	},
+	"require-dev": {
+		"phpunit/phpunit": "~4.0|~5.0|~6.0",
+		"orchestra/testbench": ">3.0,<3.6"
+	},
+	"suggest": {
+		"masterro/laravel-fresh-start": "v1.0.0",
+		"masterro/laravel-flashes": "v0.1.0"
+	},
 	"autoload": {
 		"psr-4": {
 			"MasterRO\\LaravelFileCleaner\\": "src/",
-            "MasterRO\\LaravelFileCleaner\\Tests\\": "tests/"
+			"MasterRO\\LaravelFileCleaner\\Tests\\": "tests/"
 		},
-      "classmap": [
-        "tests/Database/migrations"
-      ]
+		"classmap": [
+			"tests/Database/migrations"
+		]
 	},
-    "extra": {
-      "laravel": {
-        "providers": [
-          "MasterRO\\LaravelFileCleaner\\FileCleanerServiceProvider"
-        ]
-      }
-    }
+	"extra": {
+		"laravel": {
+			"providers": [
+				"MasterRO\\LaravelFileCleaner\\FileCleanerServiceProvider"
+			]
+		}
+	}
 }
