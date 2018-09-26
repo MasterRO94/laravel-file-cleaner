@@ -227,14 +227,16 @@ class FileCleaner extends Command
 			// File fresh.
 			if (Carbon::createFromTimestamp($file->getMTime())
 					->diffInMinutes(Carbon::now()) <= $this->timeBeforeRemove
-			)
+			) {
 				continue;
+			}
 
 			// File should be excluded.
 			if (in_array($file->getPath(), $this->excludedPaths)
 				|| in_array($filename = $file->getRealPath(), $this->excludedFiles)
-			)
+			) {
 				continue;
+			}
 
 			// If relation option set, then we remove files only if there is no related instance(s).
 			if (! is_null($this->model) && ! is_null($this->fileField) && ! is_null($this->relation)) {
