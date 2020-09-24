@@ -247,7 +247,7 @@ class FileCleaner extends Command
                 continue;
             }
 
-            // File should be excluded.
+            // If file is excluded skip it.
             if (in_array($file->getPath(), $this->excludedPaths)
                 || in_array($filename = $file->getRealPath(), $this->excludedFiles)
             ) {
@@ -262,6 +262,7 @@ class FileCleaner extends Command
                 $decision = call_user_func_array(static::$voter, [$file, isset($model) ? $model : null]);
 
                 if (false === $decision) {
+                    $this->info("Voter decision: 'Do not delete file: {$file->getRealPath()}'");
                     continue;
                 }
 
