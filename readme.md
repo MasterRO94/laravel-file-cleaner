@@ -52,14 +52,33 @@ php artisan vendor:publish --provider="MasterRO\LaravelFileCleaner\FileCleanerSe
 After that you will see `file-cleaner.php` file in config directory
 
 For this package you may set such configurations:
-* Paths where temp files are storing (or will be storing), relative to root directory
-* Excluded directory paths where nothing would be deleted, relative to root directory
-* Excluded files path that would not be deleted, relative to root directory
-* Time after which the files will be deleted | _default **60** minutes_
-* Model which instances will be deleted with associated files | _optional_
-* Field name that contains the name of the removing file | _optional, **only if model set**_
-* Remove directories flag, if set to true all nested directories would be removed | _default **true**_
-* Relation, remove files and model instances only if model instance does not have a set relation
+* `paths` - Paths where temp files are storing (or will be storing), relative to root directory
+* `excluded_paths` -  Excluded directory paths where nothing would be deleted, relative to root directory
+* `excluded_files` - Excluded files path that would not be deleted, relative to root directory
+* `time_before_remove` - Time after which the files will be deleted | _default **60** minutes_
+* `model` - Model which instances will be deleted with associated files | _optional_
+* `file_field_name` - Field name that contains the name of the removing file | _optional, **only if model set**_
+* `remove_directories` - Remove directories flag, if set to true all nested directories would be removed | _default **true**_
+* `relation` - Relation, remove files and model instances only if model instance does not have a set relation
+
+### Voter callback
+Additionally, you can set a static voter callback or invokable object to have more power on controlling deletion logic.  
+You can register it in one of yours Service providers. The callback will be called after `time_before_remove` and `excluded_*` checks.
+
+```php
+FileCleaner::voteDeleteUsing(function($path, $entity) {
+    if (isset($entity) && !$entity->user->isActive()) {
+        return true;
+    }
+
+    return false;
+});
+```
+
+If callback return `true` file and optionally associated record in db will be removed.  
+If callback return `false` file and record won't be removed. 
+Otherwise `relation` check will be performed. 
+   
 
 ## Usage
 
