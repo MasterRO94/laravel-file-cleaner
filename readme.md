@@ -4,13 +4,10 @@
 
 <p align="center">
     <a href="https://packagist.org/packages/masterro/laravel-file-cleaner">
-        <img src="https://poser.pugx.org/masterro/laravel-file-cleaner/v/stable" alt="Latest Stable Version">
+        <img src="https://img.shields.io/packagist/v/masterro/laravel-file-cleaner.svg?style=flat-rounded" alt="Latest Stable Version">
     </a>
     <a href="https://packagist.org/packages/masterro/laravel-file-cleaner">
-        <img src="https://poser.pugx.org/masterro/laravel-file-cleaner/downloads" alt="Total Downloads">
-    </a>
-    <a href="https://packagist.org/packages/masterro/laravel-file-cleaner">
-        <img src="https://poser.pugx.org/masterro/laravel-file-cleaner/v/unstable" alt="Latest Unstable Version">
+        <img src="https://img.shields.io/packagist/dt/masterro/laravel-file-cleaner.svg?style=flat-rounded" alt="Total Downloads">
     </a>
     <a href="https://travis-ci.org/MasterRO94/laravel-file-cleaner">
         <img src="https://travis-ci.org/MasterRO94/laravel-file-cleaner.svg">
@@ -19,7 +16,7 @@
         <img src="https://img.shields.io/sensiolabs/i/e34c16b0-4067-4473-ba3b-d916219ba5c6.svg" alt="SensioLabsInsight">
     </a>
     <a href="https://github.com/MasterRO94/laravel-file-cleaner/blob/master/LICENSE.txt">
-        <img src="https://poser.pugx.org/masterro/laravel-file-cleaner/license" alt="License">
+        <img src="https://img.shields.io/github/license/MasterRO94/laravel-file-cleaner" alt="License">
     </a>
 </p>
 
