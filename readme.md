@@ -76,7 +76,7 @@ FileCleaner::voteDeleteUsing(function($path, $entity) {
 ```
 
 If callback return `true` file and optionally associated record in db will be removed.  
-If callback return `false` file and record won't be removed. 
+If callback return `false` file and record won't be removed.  
 Otherwise `relation` check will be performed. 
    
 
