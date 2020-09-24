@@ -34,6 +34,8 @@ class FileCleanerTest extends TestCase
 	{
 		parent::tearDown();
 
+        FileCleaner::voteDeleteUsing(null);
+
 		$files = new Filesystem;
 		$files->deleteDirectory($this->tempDir);
 	}
@@ -420,6 +422,67 @@ class FileCleanerTest extends TestCase
 		$oneRelated->files()->create(['name' => 'wrong_name.txt']);
 
 		$this->callCleaner();
+	}
+
+
+	/**
+	 * @test
+	 */
+	public function it_removes_file_if_voter_decision_is_true()
+	{
+        $this->setUpDatabase($this->app);
+
+        $this->createTestDirectoriesAndFiles(1);
+
+        config([
+            'file-cleaner.model'           => File::class,
+            'file-cleaner.file_field_name' => 'name',
+        ]);
+
+        File::create(['name' => 'test.txt']);
+
+        FileCleaner::voteDeleteUsing(function($path, $entity) {
+            if (isset($entity) && false !== strpos($path, 'test.txt')) {
+                return true;
+            }
+
+            return false;
+        });
+
+        $this->callCleaner();
+
+        $this->assertCount(0, File::where(['name' => 'test.txt'])->get());
+        $this->assertFileNotExists("{$this->tempDir}/dir1/test.txt");
+	}
+
+	/**
+	 * @test
+	 */
+	public function it_doesnt_removes_file_if_voter_decision_is_false()
+	{
+        $this->setUpDatabase($this->app);
+
+        $this->createTestDirectoriesAndFiles(1);
+
+        config([
+            'file-cleaner.model'           => File::class,
+            'file-cleaner.file_field_name' => 'name',
+        ]);
+
+        File::create(['name' => 'test.txt']);
+
+        FileCleaner::voteDeleteUsing(function($path, $entity) {
+            if (isset($entity) && false !== strpos($path, 'test.txt')) {
+                return false;
+            }
+
+            return true;
+        });
+
+        $this->callCleaner();
+
+        $this->assertCount(1, File::where(['name' => 'test.txt'])->get());
+        $this->assertFileExists("{$this->tempDir}/dir1/test.txt");
 	}
 
 

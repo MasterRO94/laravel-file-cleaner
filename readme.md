@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://laravel.com/assets/img/components/logo-laravel.svg">
+    <img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg">
 </p>
 
 <p align="center">
@@ -25,7 +25,7 @@
 
 # LaravelFileCleaner
 
-LaravelFileCleaner is a package for Laravel 5 that provides deleting temp files and associated model instances(if needed).
+Laravel File Cleaner is a package for Laravel 5+ that provides deleting files and associated model instances.
 
 ## Installation
 
