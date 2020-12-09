@@ -15,15 +15,15 @@
 		}
 	],
 	"require": {
-		"php": ">=7.1",
-		"illuminate/support": "^5.1|^5.2|^5.3|^5.4|^6.0|^7.0|^8.0",
-		"illuminate/filesystem": "^5.1|^5.2|^5.3|^5.4|^6.0|^7.0|^8.0",
-		"illuminate/console": "^5.1|^5.2|^5.3|^5.4|^6.0|^7.0|^8.0",
-		"illuminate/database": "^5.1|^5.2|^5.3|^5.4|^6.0|^7.0|^8.0",
+		"php": ">=7.2.5",
+		"illuminate/support": "^6.0|^7.0|^8.0",
+		"illuminate/filesystem": "^6.0|^7.0|^8.0",
+		"illuminate/console": "^6.0|^7.0|^8.0",
+		"illuminate/database": "^6.0|^7.0|^8.0",
 		"nesbot/carbon": "^1.21|^2.1"
 	},
 	"require-dev": {
-		"orchestra/testbench": "^3.5|^v4.0|^v5.0|^v6.0"
+		"orchestra/testbench": "^v6.0"
 	},
 	"suggest": {
 		"masterro/laravel-fresh-start": "v1.0.0",

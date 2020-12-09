@@ -228,8 +228,10 @@ class FileCleanerTest extends TestCase
         $files->put("{$this->tempDir}/dir1/test2.txt", 'test');
         $files->put("{$this->tempDir}/dir2/test2.txt", 'test');
 
-        $this->callCleaner(true,
-            ['--excluded-files' => "{$this->tempDir}/dir1/test2.txt,{$this->tempDir}/dir2/test2.txt"]);
+        $this->callCleaner(
+            true,
+            ['--excluded-files' => "{$this->tempDir}/dir1/test2.txt,{$this->tempDir}/dir2/test2.txt"]
+        );
 
         $this->assertFileExists("{$this->tempDir}/dir1/test2.txt");
         $this->assertFileExists("{$this->tempDir}/dir2/test2.txt");
