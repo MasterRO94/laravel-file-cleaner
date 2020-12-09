@@ -23,7 +23,8 @@
 		"nesbot/carbon": "^1.21|^2.1"
 	},
 	"require-dev": {
-		"orchestra/testbench": "^v5.0|^v6.0"
+		"orchestra/testbench": "^v5.0|^v6.0",
+		"mockery/mockery": "^1.4.2"
 	},
 	"suggest": {
 		"masterro/laravel-fresh-start": "v1.0.0",
