@@ -24,7 +24,7 @@
 	},
 	"require-dev": {
 		"orchestra/testbench": "^v5.0|^v6.0",
-		"mockery/mockery": "^1.4.2"
+		"mockery/mockery": "^1.3.1|^1.4.2"
 	},
 	"suggest": {
 		"masterro/laravel-fresh-start": "v1.0.0",
