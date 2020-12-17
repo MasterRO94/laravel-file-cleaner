@@ -9,8 +9,8 @@
     <a href="https://packagist.org/packages/masterro/laravel-file-cleaner">
         <img src="https://img.shields.io/packagist/dt/masterro/laravel-file-cleaner.svg?style=flat-rounded" alt="Total Downloads">
     </a>
-    <a href="https://travis-ci.org/MasterRO94/laravel-file-cleaner">
-        <img src="https://travis-ci.org/MasterRO94/laravel-file-cleaner.svg">
+    <a href="https://github.com/MasterRO94/laravel-file-cleaner/actions">
+        <img src="https://github.com/MasterRO94/laravel-file-cleaner/workflows/Tests/badge.svg" alt="Build Status">
     </a>
     <a href="https://github.com/MasterRO94/laravel-file-cleaner/blob/master/LICENSE.txt">
         <img src="https://img.shields.io/github/license/MasterRO94/laravel-file-cleaner" alt="License">
