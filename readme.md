@@ -17,6 +17,12 @@
     </a>
 </p>
 
+<p align="center">
+    <a href="https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md">
+        <img src="https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg" alt="StandWithUkraine">
+    </a>
+</p>
+
 # Laravel File Cleaner
 
 Laravel File Cleaner is a package for Laravel 5+ that provides deleting files and associated model instances.
