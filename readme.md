@@ -23,9 +23,9 @@
     </a>
 </p>
 
-# Laravel File Cleaner
+# File Cleaner for Laravel
 
-Laravel File Cleaner is a package for Laravel 5+ that provides deleting files and associated model instances.
+File Cleaner is a package for Laravel 5+ that provides deleting files and associated model instances.
 
 ## Installation
 
